@@ -10,12 +10,17 @@ html {
 }
 
 body {
-	background-color: #1B0404;
+	background-image: url("background.png");
+}
+
+.whole-body {
+	width: 100%;
+	background-color: #1e1717be;
 }
 
 .header {
 	margin-left: 20%;
-	margin-top: 2.5vw;
+	padding-top: 2.5vw;
 	margin-bottom: 2.5vw;
 }
 
