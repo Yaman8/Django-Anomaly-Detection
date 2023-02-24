@@ -1,3 +1,4 @@
+{% load static %}
 <html lang="en">
 
 <head>
@@ -8,7 +9,7 @@
   <meta name="author" content="Kuu">
   <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{% static 'styles.css' %}" type="text/css">
 
 </head>
 
@@ -16,8 +17,16 @@
   <div class="whole-body">
     <div class="header">
       <span class="h1">Detect Anomaly in Videos!</span>
-      <br><span class="h2">Just </span><button class="upload">upload</button><span class="h2"> your file here and get
-        started!</span>
+      <!-- <br><span class="h2">Just </span><button class="upload">upload</button><span class="h2"> your file
+        here and get
+        started!</span> -->
+        <form method="post" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
+          {% csrf_token %}
+          <span></span>
+          <input type="file" class="upload" name="sentFile" />
+          <input type="submit" class="upload" value="Upload" class="submitbtn" />
+        </form>
+
     </div>
 
     <div class="container">
@@ -29,8 +38,8 @@
           </svg>
         </div>
 
-        <video controls class="video" id="video" preload="metadata" poster="poster.jpg">
-          <source src="video.mp4" type="video/mp4">
+        <video controls class="video" id="video" preload="metadata" poster="media/poster.jpg">
+          <source src="media/video.mp4" type="video/mp4">
 
         </video>
 
@@ -186,7 +195,7 @@
       </symbol>
     </defs>
   </svg>
-  <script src="index.js"></script>
+  <script src="{% static 'index.js' %}" type="application/javascript"></script>
 </body>
 
 </html>

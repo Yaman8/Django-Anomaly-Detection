@@ -5,7 +5,7 @@ from .vis import generate_vid
 
 # Create your views here.
 def home(request):
-    return render(request,'homepage.html')
+    return render(request,'index.html')
 
 def save_video(request):
     if request.method=='POST':
