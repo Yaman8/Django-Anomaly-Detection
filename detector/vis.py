@@ -70,7 +70,8 @@ class ToTensor(object):
         elif pic.mode == 'I;16':
             img = torch.from_numpy(np.array(pic, np.int16, copy=False))
         else:
-            img = torch.ByteTensor(torch.ByteStorage.from_buffer(pic.tobytes()))
+            img = torch.ByteTensor(
+                torch.ByteStorage.from_buffer(pic.tobytes()))
         # PIL image mode: 1, L, P, I, F, RGB, YCbCr, RGBA, CMYK
         if pic.mode == 'YCbCr':
             nchannel = 3
@@ -89,7 +90,7 @@ class ToTensor(object):
 
     def randomize_parameters(self):
         pass
-        
+
 
 class Normalize(object):
     def __init__(self, mean, std):
@@ -107,44 +108,51 @@ class Normalize(object):
 #############################################################
 #                        MAIN CODE                          #
 #############################################################
-def generate_vid(vid):
-    model = generate_model() # feature extrctir
-    classifier = Learner()# classifier
 
-    checkpoint = torch.load('/media/yaman/new-e/Django-Anomaly-Detection/detector/weight/RGB_Kinetics_16f.pth',map_location=torch.device('cpu'))
+
+def generate_vid(vid):
+    model = generate_model()  # feature extrctir
+    classifier = Learner().cuda()  # classifier
+
+    checkpoint = torch.load(
+        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
     model.load_state_dict(checkpoint['state_dict'])
-    checkpoint = torch.load('/media/yaman/new-e/Django-Anomaly-Detection/detector/weight/ckpt.pth',map_location=torch.device('cpu'))
+    checkpoint = torch.load(
+        'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
     classifier.load_state_dict(checkpoint['net'])
 
     model.eval()
     classifier.eval()
 
-    path = '/media/yaman/new-e/Django-Anomaly-Detection/media/'+vid[:-4] + '/*'
+    path = 'media/' + \
+        vid[:-4] + '/*'
     # path='/media/yaman/new-e/Major-Project/VIS/video/Explosion001_x264.mp4'+'/*'
-    save_path = '/media/yaman/new-e/Django-Anomaly-Detection/media/'+vid[:-4]  +'_result'
+    save_path = 'media\\' + \
+        vid[:-4] + '_result'
     img = glob.glob(path)
     # print(img)
     img.sort()
-    count=0
+    count = 0
 
     segment = len(img)//16
-    x_value =[i for i in range(segment)]
+    x_value = [i for i in range(segment)]
 
     inputs = torch.Tensor(1, 3, 16, 240, 320)
     x_time = [jj for jj in range(len(img))]
-    y_pred = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     # total_tensor
-    for num, i in enumerate(img):
+    for num, i in enumerate(tqdm(img)):
         if num < 16:
-            inputs[:,:,num,:,:] = ToTensor(1)(Image.open(i))
+            inputs[:, :, num, :, :] = ToTensor(1)(Image.open(i))
             cv_img = cv2.imread(i)
-            print(cv_img.shape)
-            h,w,_ =cv_img.shape
-            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
+            # print(cv_img.shape)
+            h, w, _ = cv_img.shape
+            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
+                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
         else:
-            inputs[:,:,:15,:,:] = inputs[:,:,1:,:,:]
-            inputs[:,:,15,:,:] = ToTensor(1)(Image.open(i))
-            inputs = inputs
+            inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
+            inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
+            inputs = inputs.cuda()
             start = time.time()
             output, feature = model(inputs)
             feature = F.normalize(feature, p=2, dim=1)
@@ -153,25 +161,24 @@ def generate_vid(vid):
             end = time.time()
             FPS = str(1/(end-start))[:5]
             out_str = str(out.item())[:5]
-            print(len(x_value)/len(y_pred))
-                    
+            # print(len(x_value)/len(y_pred))
+
             cv_img = cv2.imread(i)
-            cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str, (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
+            cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str,
+                                 (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
             if out.item() > 0.4:
-                cv_img = cv2.rectangle(cv_img,(0,0),(w,h), (0,0,255), 3)
+                cv_img = cv2.rectangle(cv_img, (0, 0), (w, h), (0, 0, 255), 3)
 
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
-        path = '/'+save_path+'/'+os.path.basename(i)
+        path = save_path+'/'+os.path.basename(i)
+        # print('++++*****', path, cv_img)
         cv2.imwrite(path, cv_img)
 
     # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
-    os.system('ffmpeg -i "%s" -c:v libx264 "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
+    os.system('ffmpeg -i "%s" -c:v libx264 "%s"' %
+              (save_path+'/%05d.jpg', save_path+'.mp4'))
     # plt.plot(x_time, y_pred)
     # plt.savefig(save_path+'.png', dpi=300)
     # plt.cla()
-
-
-        
-    
