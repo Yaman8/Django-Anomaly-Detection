@@ -1,7 +1,9 @@
 // Select elements here
 const video = document.getElementById('video');
 const videoControls = document.getElementById('video-controls');
+const sideTab = document.getElementById('sideTab');
 const playButton = document.getElementById('play');
+const chapterButton = document.getElementById('chapter');
 const playbackIcons = document.querySelectorAll('.playback-icons use');
 const timeElapsed = document.getElementById('time-elapsed');
 const duration = document.getElementById('duration');
@@ -220,33 +222,23 @@ function showControls() {
     videoControls.classList.remove('hide');
 }
 
-// keyboardShortcuts executes the relevant functions for
-// each supported shortcut key
-function keyboardShortcuts(event) {
-    const { key } = event;
-    switch (key) {
-        case 'k':
-            togglePlay();
-            animatePlayback();
-            if (video.paused) {
-                showControls();
-            } else {
-                setTimeout(() => {
-                    hideControls();
-                }, 2000);
-            }
-            break;
-        case 'm':
-            toggleMute();
-            break;
-        case 'f':
-            toggleFullScreen();
-            break;
-    }
+//show the side bar
+function hideSideTab() {
+    sideTab.classList.add('hide');
 }
-
+function toggleSideTab() {
+    sideTab.classList.toggle('hide');
+    videoControls.classList.toggle('shrink');
+}
+function createExtractChapter() {
+    const chapter = document.createElement("div");
+    chapter.className = "chapterElement";
+    chapter.innerHTML = '<image class="chapterImage" src="poster.jpg"><div class="chapterText"><p class="chapterTimeInterval">00:00 - 1:30</p><image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()"></div>';
+    sideTab.appendChild(chapter);
+}
 // Add eventlisteners here
 playButton.addEventListener('click', togglePlay);
+chapterButton.addEventListener('click', toggleSideTab);
 video.addEventListener('play', updatePlayButton);
 video.addEventListener('pause', updatePlayButton);
 video.addEventListener('loadedmetadata', initializeVideo);

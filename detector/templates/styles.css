@@ -96,6 +96,7 @@ video {
 	border-radius: 4px;
 }
 
+
 .video-controls {
 	right: 0;
 	left: 0;
@@ -109,6 +110,10 @@ video {
 .video-controls.hide {
 	opacity: 0;
 	pointer-events: none;
+}
+
+.video-controls.shrink {
+	right: 30%;
 }
 
 .video-progress {
@@ -298,6 +303,7 @@ input[type=range]:focus {
 input[type=range]::-webkit-slider-runnable-track {
 	width: 100%;
 	cursor: pointer;
+	animate: 0.2s;
 	border-radius: 1.3px;
 	-webkit-appearance: none;
 	transition: all 0.4s ease;
@@ -317,6 +323,43 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 	background: transparent;
 }
 
+/*  */
+input[type=range].extractTime {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	height: 8.4px;
+	background: white;
+	cursor: pointer;
+}
+
+input[type=range].extractTime:focus {
+	outline: none;
+}
+
+input[type=range].extractTime::-webkit-slider-runnable-track {
+	width: 100%;
+	cursor: pointer;
+	animate: 0.2s;
+	border-radius: 1.3px;
+	-webkit-appearance: none;
+	transition: all 0.4s ease;
+}
+
+input[type=range].extractTime::-webkit-slider-thumb {
+	height: 16px;
+	width: 16px;
+	border-radius: 16px;
+	background: var(--seeker-pointer);
+	cursor: pointer;
+	-webkit-appearance: none;
+	margin-left: -1px;
+}
+
+input[type=range].extractTime:focus::-webkit-slider-runnable-track {
+	background: transparent;
+}
+
+/*  */
 input[type=range].volume {
 	height: 5px;
 	background-color: #fff;
@@ -375,4 +418,69 @@ svg {
 
 .time {
 	color: #ffffff99
+}
+
+.sideTab {
+	right: 0;
+	top: 0;
+	bottom: 0;
+	position: absolute;
+	width: 30%;
+	background-color: #00000090;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	overflow-y: scroll;
+}
+
+.sideTab {
+	-ms-overflow-style: none;
+	/* Internet Explorer 10+ */
+	scrollbar-width: none;
+	/* Firefox */
+}
+
+.sideTab::-webkit-scrollbar {
+	display: none;
+	/* Safari and Chrome */
+}
+
+.sideTab.hide {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.chapterElement {
+	display: flex;
+	flex-direction: column;
+	align-content: space-around;
+	align-items: center;
+	justify-content: space-around;
+	margin-top: 20px;
+}
+
+.chapterImage {
+	width: 80%;
+	margin: auto;
+}
+
+.chapterText {
+	width: 80%;
+	display: flex;
+	flex-direction: row;
+}
+
+.chapterTimeInterval {
+	width: 50%;
+	font-size: 0.8em;
+	color: white;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.downloadImage {
+	width: 50%;
+	height: 2em;
+	cursor: pointer;
 }

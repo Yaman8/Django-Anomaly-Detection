@@ -16,7 +16,7 @@
   <div class="whole-body">
     <div class="header">
       <span class="h1">Detect Anomaly in Videos!</span>
-      <br><span class="h2">Just </span><button class="upload">upload</button><span class="h2"> your file here and get
+      <br><span class="h2">Just </span><button class="upload" id="upload" onclick="createExtractChapter()">upload</button><span class="h2"> your file here and get
         started!</span>
     </div>
 
@@ -28,7 +28,6 @@
             <use href="#pause"></use>
           </svg>
         </div>
-
         <video controls class="video" id="video" preload="metadata" poster="poster.jpg">
           <source src="video.mp4" type="video/mp4">
 
@@ -59,7 +58,7 @@
             </div> -->
             </div>
             <div class="mid-controls">
-              <button data-title="Extract" id="chapter">
+              <button data-title="Extract" id="extract">
                 <svg class="previous-icons">
                   <use href="#share-icon"></use>
                 </svg>
@@ -100,16 +99,36 @@
             </div>
           </div>
         </div>
+
+        <div class="sideTab hide" id="sideTab">
+          
+          <div class="chapterElement">
+            <image class="chapterImage" src="poster.jpg">
+            <div class="chapterText">
+              <p class="chapterTimeInterval">00:00 - 01:30</p>
+              <image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()">
+            </div>
+          </div>
+          <div class="chapterElement">
+            <image class="chapterImage" src="poster.jpg">
+            <div class="chapterText">
+              <p class="chapterTimeInterval">00:00 - 01:30</p>
+              <image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()">
+            </div>
+          </div>
+        </div>
       </div>
     </div>"
     <div class="header" style="padding-bottom: 100px;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
       <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
-      <input type="number" id="startTime" name="startTime" min="0" value="10">
-      <label for="startTime" class="h3">- Start time</label><br>
-      <input type="number" id="endTime" name="endTime" min="0" value="20">
-      <label for="endTime" class="h3">- End time</label><br><br>
+      <label for="startTime" class="h3">Start time - </label>
+      <input type="range" class="extractTime" id="startTime" name="startTime" min="0" max="1000" step="1" value="150">
+      <br>
+      <label for="endTime" class="h3">..End time - </label>
+      <input type="range" class="extractTime" id="endTime" name="endTime" min="0"  max="1000" step="1" value="300">
+      <br><br>
       <button id="downloadButton">Download Clip</button>
     </div>
   </div>
