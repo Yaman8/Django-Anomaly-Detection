@@ -8,6 +8,12 @@ const playbackIcons = document.querySelectorAll('.playback-icons use');
 const timeElapsed = document.getElementById('time-elapsed');
 const duration = document.getElementById('duration');
 
+const videoProgressGroup = document.getElementById('video-progress');
+const extractProgressGroup = document.getElementById('extract-progress');
+
+const midControls = document.getElementById('controls-non-extract');
+const midControlsExtract = document.getElementById('controls-extract');
+
 const progressBar = document.getElementById('progress-bar');
 const extractBarInitial = document.getElementById('extract-bar-initial')
 const extractBarFinal = document.getElementById('extract-bar-final')
@@ -287,6 +293,12 @@ function hideSideTab() {
 function toggleSideTab() {
     sideTab.classList.toggle('hide');
     videoControls.classList.toggle('shrink');
+}
+function toggleExtract() {
+    midControls.classList.toggle('hide');
+    midControlsExtract.classList.toggle('hide');
+    videoProgressGroup.classList.toggle('hide');
+    extractProgressGroup.classList.toggle('hide');
 }
 function createExtractChapter() {
     const chapter = document.createElement("div");

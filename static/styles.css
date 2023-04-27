@@ -122,6 +122,12 @@ video {
 	margin-bottom: 10px;
 }
 
+.video-progress.hide {
+	opacity: 0;
+	display: none;
+	pointer-events: none;
+}
+
 .extract-progress {
 	position: relative;
 	height: 8.4px;
@@ -130,6 +136,7 @@ video {
 
 .extract-progress.hide {
 	opacity: 0;
+	display: none;
 	pointer-events: none;
 }
 
@@ -234,6 +241,12 @@ progress::-moz-progress-bar {
 	align-items: center;
 	justify-content: space-around;
 	color: #fff;
+}
+
+.mid-controls.hide {
+	display: none;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .right-controls {
@@ -491,6 +504,7 @@ svg {
 	opacity: 0;
 	pointer-events: none;
 }
+
 
 .chapterElement {
 	display: flex;
