@@ -14,8 +14,10 @@ def save_video(request):
         url=default_storage.url(file_name)
         # context={'message':file_name}
         to_frames(url,f.name)
-        # generate_vid(f.name)
-        full_url='http://127.0.0.1:8000/media/'+f.name+'_result.mp4'
+        generate_vid(f.name)
+        full_url='http://127.0.0.1:8000/media/'+f.name[:-4]+'_result.mp4'
+        print(full_url)
+        # extract_snippet('/media/yaman/new-e/Django-Anomaly-Detection/media/video.mp4','00:00:07','00:00:10')
 
 
     return render(request,'video.html',context={'video_url': full_url})

@@ -138,9 +138,9 @@ def generate_vid(vid):
         if num < 16:
             inputs[:,:,num,:,:] = ToTensor(1)(Image.open(i))
             cv_img = cv2.imread(i)
-            print(cv_img.shape)
+            # print(cv_img.shape)
             h,w,_ =cv_img.shape
-            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
+            # cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
         else:
             inputs[:,:,:15,:,:] = inputs[:,:,1:,:,:]
             inputs[:,:,15,:,:] = ToTensor(1)(Image.open(i))
@@ -156,7 +156,7 @@ def generate_vid(vid):
             print(len(x_value)/len(y_pred))
                     
             cv_img = cv2.imread(i)
-            cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str, (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
+            # cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str, (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,200,240), 2)
             if out.item() > 0.4:
                 cv_img = cv2.rectangle(cv_img,(0,0),(w,h), (0,0,255), 3)
 
