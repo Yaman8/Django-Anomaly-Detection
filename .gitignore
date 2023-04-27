@@ -1,0 +1,4 @@
+detector/weight/RGB_Kinetics_16f.pth
+media/
+test_imap.py
+__pycache__/
