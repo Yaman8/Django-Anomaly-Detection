@@ -106,10 +106,14 @@ class Normalize(object):
 #############################################################
 #                        MAIN CODE                          #
 #############################################################
-model = generate_model()  # feature extrctir
+model = generate_model()#.cuda()  # feature extrctir
 classifier = Learner()#.cuda()  # classifier
 
-device = 'cpu'
+device = 'cuda'
+
+if device=='cuda':
+    model = model.cuda()
+    classifier = classifier.cuda()
 
 checkpoint = torch.load(
     'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
@@ -300,7 +304,6 @@ def generate_vid(vid):
     frames = glob.glob(path)
     # print(img)
     frames.sort()
-    frames = frames[:40]
     count = 0
 
     segment = len(frames)//16
