@@ -293,7 +293,6 @@ function createExtractChapter() {
     chapter.className = "chapterElement";
     chapter.innerHTML = '<image class="chapterImage" src="poster.jpg"><div class="chapterText"><p class="chapterTimeInterval">00:00 - 1:30</p><image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()"></div>';
     sideTab.appendChild(chapter);
-    //TODO call ffmpeg function
 }
 // Add eventlisteners here
 playButton.addEventListener('click', togglePlay);

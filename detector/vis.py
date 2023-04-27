@@ -167,7 +167,6 @@ def process_frame(i):
 
 
 def generate_vid(vid):
-
     path = 'media/' + \
         vid[:-4] + '/*'
     # path='/media/yaman/new-e/Major-Project/VIS/video/Explosion001_x264.mp4'+'/*'

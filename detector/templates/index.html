@@ -1,5 +1,5 @@
 <html lang="en">
-
+  {% load static %}
 <head>
   <meta charset="utf-8">
 
@@ -8,7 +8,7 @@
   <meta name="author" content="Kuu">
   <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
 
 </head>
 
@@ -16,8 +16,14 @@
   <div class="whole-body">
     <div class="header">
       <span class="h1">Detect Anomaly in Videos!</span>
-      <br><span class="h2">Just </span><button class="upload" id="upload" onclick="createExtractChapter()">upload</button><span class="h2"> your file here and get
-        started!</span>
+      <br><form method="post" id="MyGreatFileUploadForm" action="{% url 'upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <span class="h2">Just </span>
+        <input type="file" id="hiddenUploadButton" name="sentFile" onChange="document.getElementById('MyGreatFileUploadForm').submit();" style="display:none;" />
+        <button type="button" class="upload" id="upload" onclick="document.getElementById('hiddenUploadButton').click();">upload</button><span class="h2"> your file here and get
+          started!</span>
+    </form>
+      
     </div>
 
     <div class="container">
@@ -28,9 +34,8 @@
             <use href="#pause"></use>
           </svg>
         </div>
-        <video controls class="video" id="video" preload="metadata" poster="poster.jpg">
-          <source src="video.mp4" type="video/mp4">
-
+        <video autoplay="autoplay" controls class="video" id="video" preload="metadata" poster="{% static 'poster.jpg' %}">
+          <source src="{{video_url}}" type="video/mp4">  
         </video>
 
         <div class="video-controls hidden" id="video-controls">
@@ -115,17 +120,17 @@
         <div class="sideTab hide" id="sideTab">
           
           <div class="chapterElement">
-            <image class="chapterImage" src="poster.jpg">
+            <image class="chapterImage" src="{% static 'poster.jpg' %}">
             <div class="chapterText">
               <p class="chapterTimeInterval">00:00 - 01:30</p>
-              <image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()">
+              <image class="downloadImage" src="{% static 'downloadButton.svg' %}" onclick="TODOdownloadFunction()">
             </div>
           </div>
           <div class="chapterElement">
-            <image class="chapterImage" src="poster.jpg">
+            <image class="chapterImage" src="{% static 'poster.jpg' %}">
             <div class="chapterText">
               <p class="chapterTimeInterval">00:00 - 01:30</p>
-              <image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()">
+              <image class="downloadImage" src="{% static 'downloadButton.svg' %}" onclick="TODOdownloadFunction()">
             </div>
           </div>
         </div>
@@ -217,7 +222,7 @@
       </symbol>
     </defs>
   </svg>
-  <script src="index.js"></script>
+  <script src="{% static 'index.js' %}"></script>
 </body>
 
 </html>
