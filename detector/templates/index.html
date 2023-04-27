@@ -20,12 +20,12 @@
       <!-- <br><span class="h2">Just </span><button class="upload">upload</button><span class="h2"> your file
         here and get
         started!</span> -->
-        <form method="post" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
-          {% csrf_token %}
-          <span></span>
-          <input type="file" class="upload" name="sentFile" />
-          <input type="submit" class="upload" value="Upload" class="submitbtn" />
-        </form>
+      <form method="post" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <span></span>
+        <input type="file" class="upload" name="sentFile" />
+        <input type="submit" class="upload" value="Upload" class="submitbtn" />
+      </form>
 
     </div>
 
@@ -114,12 +114,16 @@
     <div class="header" style="padding-bottom: 100px;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
-      <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
-      <input type="number" id="startTime" name="startTime" min="0" value="10">
-      <label for="startTime" class="h3">- Start time</label><br>
-      <input type="number" id="endTime" name="endTime" min="0" value="20">
-      <label for="endTime" class="h3">- End time</label><br><br>
-      <button id="downloadButton">Download Clip</button>
+      <form method="POST" action="{% url 'timestamp' %}">
+        {% csrf_token %}
+        <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
+        <input type="number" id="startTime" name="start" min="0" value="10">
+        <label for="startTime" class="h3">- Start time</label><br>
+        <input type="number" id="endTime" name="duration" min="0" value="20">
+        <label for="endTime" class="h3">- End time</label><br><br>
+        <input type="submit" value="Submit" class="submitbtn"/>
+        <!-- <button id="downloadButton">Download Clip</button> -->
+      </form>
     </div>
   </div>
   <svg style="display: none">

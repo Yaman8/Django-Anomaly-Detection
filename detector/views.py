@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponse
 from django.core.files.storage import default_storage
 from .video2frame import to_frames
 from .vis import generate_vid
+from .frame import extract_snippet
 
 # Create your views here.
 def home(request):
@@ -25,3 +26,13 @@ def save_video(request):
     # return HttpResponse('Home page')
 # def display(request):
 #     vid=Video.objects.all()
+
+def extract_snippet(request):
+    if request.method=='POST':
+        start=request.POST.get('start')
+        duration=request.POST.get('duration')
+        print("Start:",start)
+        print("Duration:",duration)
+        return render(request,'index.html')
+    else:
+        return render(request,'index.html')
