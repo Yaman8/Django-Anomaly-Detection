@@ -34,12 +34,24 @@
         </video>
 
         <div class="video-controls hidden" id="video-controls">
-          <div class="video-progress">
+
+          <div class="video-progress"> 
             <progress id="progress-bar" value="0" min="0"></progress>
             <input class="seek" id="seek" value="0" min="0" type="range" step="1">
             <div class="seek-tooltip" id="seek-tooltip">00:00</div>
           </div>
 
+          <div class="extract-progress">
+            <progress id="extract-bar-final" value="10" min="0"></progress>
+            <input class="seek" id="seek-final" value="10" min="0" type="range" step="1">
+            <div class="seek-tooltip" id="seek-tooltip-final">00:00</div>
+
+            <progress id="extract-bar-initial" value="0" min="0"></progress>
+            <input class="seek" id="seek-initial" value="0" min="0" type="range" step="1">
+            <div class="seek-tooltip" id="seek-tooltip-initial">00:00</div>
+            
+          </div>
+          
           <div class="bottom-controls">
             <div class="left-controls">
               <div class="time">

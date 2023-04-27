@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import torch
 import glob
 import numpy as np
@@ -105,24 +106,67 @@ class Normalize(object):
     def randomize_parameters(self):
         pass
 
+
 #############################################################
 #                        MAIN CODE                          #
 #############################################################
+model = generate_model()  # feature extrctir
+classifier = Learner().cuda()  # classifier
+
+checkpoint = torch.load(
+    'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
+model.load_state_dict(checkpoint['state_dict'])
+checkpoint = torch.load(
+    'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
+classifier.load_state_dict(checkpoint['net'])
+
+model.eval()
+classifier.eval()
+y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+def process_frame(i):
+    global inputs
+    save_path = 'media\\' + \
+        i.split('\\')[0][:-4] + '_result'
+    print(save_path)
+    num = int(i.split('\\')[-1].split('.')[0])
+    if num < 16:
+        inputs[:, :, num, :, :] = ToTensor(1)(Image.open(i))
+        cv_img = cv2.imread(i)
+        # print(cv_img.shape)
+        h, w, _ = cv_img.shape
+        cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
+                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
+    else:
+        inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
+        inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
+        inputs = inputs.cuda()
+        start = time.time()
+        output, feature = model(inputs)
+        feature = F.normalize(feature, p=2, dim=1)
+        out = classifier(feature)
+        y_pred.append(out.item())
+        end = time.time()
+        FPS = str(1/(end-start))[:5]
+        out_str = str(out.item())[:5]
+        # print(len(x_value)/len(y_pred))
+
+        cv_img = cv2.imread(i)
+        cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str,
+                             (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
+        if out.item() > 0.4:
+            cv_img = cv2.rectangle(cv_img, (0, 0), (w, h), (0, 0, 255), 3)
+
+    if not os.path.isdir(save_path):
+        os.mkdir(save_path)
+
+    path = save_path+'/'+os.path.basename(i)
+    # print('++++*****', path, cv_img)
+    cv2.imwrite(path, cv_img)
 
 
 def generate_vid(vid):
-    model = generate_model()  # feature extrctir
-    classifier = Learner().cuda()  # classifier
-
-    checkpoint = torch.load(
-        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
-    model.load_state_dict(checkpoint['state_dict'])
-    checkpoint = torch.load(
-        'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
-    classifier.load_state_dict(checkpoint['net'])
-
-    model.eval()
-    classifier.eval()
 
     path = 'media/' + \
         vid[:-4] + '/*'
@@ -141,44 +185,13 @@ def generate_vid(vid):
     x_time = [jj for jj in range(len(img))]
     y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     # total_tensor
-    for num, i in enumerate(tqdm(img)):
-        if num < 16:
-            inputs[:, :, num, :, :] = ToTensor(1)(Image.open(i))
-            cv_img = cv2.imread(i)
-            # print(cv_img.shape)
-            h, w, _ = cv_img.shape
-            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
-                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
-        else:
-            inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
-            inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
-            inputs = inputs.cuda()
-            start = time.time()
-            output, feature = model(inputs)
-            feature = F.normalize(feature, p=2, dim=1)
-            out = classifier(feature)
-            y_pred.append(out.item())
-            end = time.time()
-            FPS = str(1/(end-start))[:5]
-            out_str = str(out.item())[:5]
-            # print(len(x_value)/len(y_pred))
 
-            cv_img = cv2.imread(i)
-            cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str,
-                                 (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
-            if out.item() > 0.4:
-                cv_img = cv2.rectangle(cv_img, (0, 0), (w, h), (0, 0, 255), 3)
+    with Pool(4) as p:
+        for i in tqdm(p.imap(process_frame, img), total=len(img)):
+            print(i)
 
-        if not os.path.isdir(save_path):
-            os.mkdir(save_path)
-
-        path = save_path+'/'+os.path.basename(i)
-        # print('++++*****', path, cv_img)
-        cv2.imwrite(path, cv_img)
-
-    # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
-    os.system('ffmpeg -i "%s" -c:v libx264 "%s"' %
+    os.system('ffmpeg -i "%s" "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
     # plt.plot(x_time, y_pred)
-    # plt.savefig(save_path+'.png', dpi=300)
-    # plt.cla()
+    plt.savefig(save_path+'.png', dpi=300)
+    plt.cla()

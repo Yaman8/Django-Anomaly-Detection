@@ -7,9 +7,19 @@ const chapterButton = document.getElementById('chapter');
 const playbackIcons = document.querySelectorAll('.playback-icons use');
 const timeElapsed = document.getElementById('time-elapsed');
 const duration = document.getElementById('duration');
+
 const progressBar = document.getElementById('progress-bar');
+const extractBarInitial = document.getElementById('extract-bar-initial')
+const extractBarFinal = document.getElementById('extract-bar-final')
+
 const seek = document.getElementById('seek');
+const seekInitial = document.getElementById('seek-initial');
+const seekFinal = document.getElementById('seek-final');
+
 const seekTooltip = document.getElementById('seek-tooltip');
+const seekTooltipInitial = document.getElementById('seek-tooltip-initial');
+const seekTooltipFinal = document.getElementById('seek-tooltip-final');
+
 // const volumeButton = document.getElementById('volume-button');
 // const volumeIcons = document.querySelectorAll('.volume-button use');
 // const volumeMute = document.querySelector('use[href="#volume-mute"]');
@@ -67,8 +77,15 @@ function formatTime(timeInSeconds) {
 // progressBar
 function initializeVideo() {
     const videoDuration = Math.round(video.duration);
+
     seek.setAttribute('max', videoDuration);
+    seekInitial.setAttribute('max', videoDuration);
+    seekFinal.setAttribute('max', videoDuration);
+
     progressBar.setAttribute('max', videoDuration);
+    extractBarFinal.setAttribute('max', videoDuration);
+    extractBarInitial.setAttribute('max', videoDuration);
+
     const time = formatTime(videoDuration);
     duration.innerText = `${time.minutes}:${time.seconds}`;
     duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
@@ -104,6 +121,29 @@ function updateSeekTooltip(event) {
     seekTooltip.style.left = `${event.pageX - rect.left}px`;
 }
 
+function updateSeekTooltipInitial(event) {
+    const skipTo = Math.round(
+        (event.offsetX / event.target.clientWidth) *
+        parseInt(event.target.getAttribute('max'), 10)
+    );
+    seekInitial.setAttribute('data-seek', skipTo);
+    const t = formatTime(skipTo);
+    seekTooltipInitial.textContent = `${t.minutes}:${t.seconds}`;
+    const rect = video.getBoundingClientRect();
+    seekTooltipInitial.style.left = `${event.pageX - rect.left}px`;
+}
+
+function updateSeekTooltipFinal(event) {
+    const skipTo = Math.round(
+        (event.offsetX / event.target.clientWidth) *
+        parseInt(event.target.getAttribute('max'), 10)
+    );
+    seekFinal.setAttribute('data-seek', skipTo);
+    const t = formatTime(skipTo);
+    seekTooltipFinal.textContent = `${t.minutes}:${t.seconds}`;
+    const rect = video.getBoundingClientRect();
+    seekTooltipFinal.style.left = `${event.pageX - rect.left}px`;
+}
 // skipAhead jumps to a different point in the video when the progress bar
 // is clicked
 function skipAhead(event) {
@@ -113,6 +153,22 @@ function skipAhead(event) {
     video.currentTime = skipTo;
     progressBar.value = skipTo;
     seek.value = skipTo;
+}
+function skipAheadInitial(event) {
+    const skipTo = event.target.dataset.seek
+        ? event.target.dataset.seek
+        : event.target.value;
+    video.currentTime = skipTo;
+    extractBarInitial.value = skipTo;
+    seekInitial.value = skipTo;
+}
+function skipAheadFinal(event) {
+    const skipTo = event.target.dataset.seek
+        ? event.target.dataset.seek
+        : event.target.value;
+    video.currentTime = skipTo;
+    extractBarFinal.value = skipTo;
+    seekFinal.value = skipTo;
 }
 
 // updateVolume updates the video's volume
@@ -251,8 +307,14 @@ video.addEventListener('mouseenter', showControls);
 video.addEventListener('mouseleave', hideControls);
 videoControls.addEventListener('mouseenter', showControls);
 videoControls.addEventListener('mouseleave', hideControls);
+
 seek.addEventListener('mousemove', updateSeekTooltip);
+seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
+seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
+
 seek.addEventListener('input', skipAhead);
+seekInitial.addEventListener('input', skipAheadInitial);
+seekFinal.addEventListener('input', skipAheadFinal);
 // volume.addEventListener('input', updateVolume);
 // volumeButton.addEventListener('click', toggleMute);
 // fullscreenButton.addEventListener('click', toggleFullScreen);
