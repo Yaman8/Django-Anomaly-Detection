@@ -11,6 +11,28 @@
 
   <link rel="stylesheet" href="{% static 'styles.css' %}" type="text/css">
 
+  <script src = 'https://code.jquery.com/jquery-3.6.3.min.js' type="application/javascript"></script>
+  <script type="text/javascript">
+    function sendDownloadRequest() {
+      let data = { start: "00:01:30", duration: "00:02:00" };
+      console.log(data);
+      console.log({% url 'timestamp' %})
+      var csrf_token = $('input[name="csrfmiddlewaretoken"]').val()
+      console.log(csrf_token)
+      fetch("{% url 'timestamp' %}", {
+          method: "POST",
+          headers: { 
+            'Content-Type': 'application/json',
+            "X-CSRFToken": csrf_token
+          },
+          body: JSON.stringify(data)
+      }).then(res => {
+          console.log("Request complete! response:", res);
+      });
+      
+  }
+</script>
+
 </head>
 
 <body>
@@ -48,12 +70,12 @@
           </div>
 
           <div class="extract-progress hide" id="extract-progress">
-            <progress id="extract-bar-final" value="10" min="0"></progress>
+            <progress id="extract-bar-final" value="30" min="0"></progress>
             <input class="seek" id="seek-final" value="10" min="0" type="range" step="1">
             <div class="seek-tooltip" id="seek-tooltip-final">00:00</div>
 
             <progress id="extract-bar-initial" value="0" min="0"></progress>
-            <input class="seek" id="seek-initial" value="0" min="0" type="range" step="1">
+            <input class="seek" id="seek-initial" value="10" min="0" type="range" step="1">
             <div class="seek-tooltip" id="seek-tooltip-initial">00:00</div>
             
           </div>
@@ -104,7 +126,7 @@
               </button>
             </div>
             <div class="mid-controls hide" id="controls-extract">
-              <image class="downloadImage" src="{% static 'downloadButton.svg' %}" onclick="toggleExtract()">
+              <image class="downloadImage" src="{% static 'downloadButton.svg' %}" onclick="toggleExtract(); sendDownloadRequest()">
             </div>
             <div class="right-controls">
 
@@ -140,20 +162,21 @@
         </div>
       </div>
     </div>"
-    <div class="header" style="display:none;">
+    <div class="header" style="padding-bottom:100px;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
-      <form method="POST" action="{% url 'timestamp' %}">
+      <form id="extractForm" method="POST" action="{% url 'timestamp' %}">
         {% csrf_token %}
         <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
         <input type="number" id="startTime" name="start" min="0" value="10">
         <label for="startTime" class="h3">- Start time</label><br>
-        <input type="number" id="endTime" name="duration" min="0" value="20">
-        <label for="endTime" class="h3">- End time</label><br><br>
-        <input type="submit" value="Submit" class="submitbtn"/>
+        <input type="number" id="endTime" name="duration" min="0" value="50">
+        <label for="endTime" class="h3">- Duration</label><br><br>
+        <image class="downloadImage" src="{% static 'downloadButton.svg' %}" onclick="document.getElementById('extractForm').submit();">
         <!-- <button id="downloadButton">Download Clip</button> -->
       </form>
     </div>
+    
   </div>
   <svg style="display: none">
     <defs>
@@ -229,6 +252,7 @@
     </defs>
   </svg>
   <script src="{% static 'index.js' %}" type="application/javascript"></script>
+  
 </body>
 
 </html>

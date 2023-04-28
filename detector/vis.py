@@ -296,49 +296,125 @@ class MyPool(multiprocessing.pool.Pool):
 
 ##################################################################################################################################################
 
+# With Multi
+# def generate_vid(vid):
+#     path = 'media/' + \
+#         vid[:-4] + '/*'
+#     # path='/media/yaman/new-e/Major-Project/VIS/video/Explosion001_x264.mp4'+'/*'
+#     save_path = 'media\\' + \
+#         vid[:-4] + '_result'
+#     frames = glob.glob(path)
+#     # print(img)
+#     frames.sort()
+#     count = 0
+
+#     segment = len(frames)//16
+#     x_value = [i for i in range(segment)]
+
+#     inputs = torch.Tensor(1, 3, 16, 240, 320)
+#     x_time = [jj for jj in range(len(frames))]
+#     y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+#     chunk_size = 100
+#     # num_chunks = math.ceil(len(frames)/chunk_size)
+#     # chunk_ids = [i*chunk_size for i in range(num_chunks)]
+#     # print(chunk_ids)
+#     inter_proc_q = Queue()
+#     pbar = tqdm(total=len(frames))
+
+#     predictions = []
+#     with MyPool(2, initializer=proc_initializer2, initargs=[frames, save_path, chunk_size, model, classifier, inter_proc_q]) as p2:
+#         result = p2.apply_async(get_preds)
+
+#         while not result.ready():
+#             up_val = 0
+#             try:
+#                 up_val = inter_proc_q.get(block=False)
+#             except Empty:
+#                 up_val = 0
+#             pbar.update(up_val)
+#             # pbar.refresh()
+
+#         predictions = result.get()
+
+#     print("saving result video...")
+#     os.system('ffmpeg -i "%s" "%s"' %
+#               (save_path+'/%05d.jpg', save_path+'.mp4'))
+#     # plt.plot(x_time, y_pred)
+#     # plt.savefig(save_path+'.png', dpi=300)
+#     # plt.cla()
+
+# No Multi
+
 
 def generate_vid(vid):
+    model = generate_model()  # feature extrctir
+    classifier = Learner().cuda()  # classifier
+
+    checkpoint = torch.load(
+        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
+    model.load_state_dict(checkpoint['state_dict'])
+    checkpoint = torch.load(
+        'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
+    classifier.load_state_dict(checkpoint['net'])
+
+    model.eval()
+    classifier.eval()
+
     path = 'media/' + \
         vid[:-4] + '/*'
     # path='/media/yaman/new-e/Major-Project/VIS/video/Explosion001_x264.mp4'+'/*'
     save_path = 'media\\' + \
         vid[:-4] + '_result'
-    frames = glob.glob(path)
+    img = glob.glob(path)
     # print(img)
-    frames.sort()
+    img.sort()
     count = 0
 
-    segment = len(frames)//16
+    segment = len(img)//16
     x_value = [i for i in range(segment)]
 
     inputs = torch.Tensor(1, 3, 16, 240, 320)
-    x_time = [jj for jj in range(len(frames))]
+    x_time = [jj for jj in range(len(img))]
     y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # total_tensor
+    for num, i in enumerate(tqdm(img)):
+        if num < 16:
+            inputs[:, :, num, :, :] = ToTensor(1)(Image.open(i))
+            cv_img = cv2.imread(i)
+            # print(cv_img.shape)
+            h, w, _ = cv_img.shape
+            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
+                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
+        else:
+            inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
+            inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
+            inputs = inputs.cuda()
+            start = time.time()
+            output, feature = model(inputs)
+            feature = F.normalize(feature, p=2, dim=1)
+            out = classifier(feature)
+            y_pred.append(out.item())
+            end = time.time()
+            FPS = str(1/(end-start))[:5]
+            out_str = str(out.item())[:5]
+            # print(len(x_value)/len(y_pred))
 
-    chunk_size = 100
-    # num_chunks = math.ceil(len(frames)/chunk_size)
-    # chunk_ids = [i*chunk_size for i in range(num_chunks)]
-    # print(chunk_ids)
-    inter_proc_q = Queue()
-    pbar = tqdm(total=len(frames))
+            cv_img = cv2.imread(i)
+            cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str,
+                                 (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
+            if out.item() > 0.4:
+                cv_img = cv2.rectangle(cv_img, (0, 0), (w, h), (0, 0, 255), 3)
 
-    predictions = []
-    with MyPool(2, initializer=proc_initializer2, initargs=[frames, save_path, chunk_size, model, classifier, inter_proc_q]) as p2:
-        result = p2.apply_async(get_preds)
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
 
-        while not result.ready():
-            up_val = 0
-            try:
-                up_val = inter_proc_q.get(block=False)
-            except Empty:
-                up_val = 0
-            pbar.update(up_val)
-            # pbar.refresh()
+        path = save_path+'/'+os.path.basename(i)
+        # print('++++*****', path, cv_img)
+        cv2.imwrite(path, cv_img)
 
-        predictions = result.get()
-
-    print("saving result video...")
-    os.system('ffmpeg -i "%s" "%s"' %
+    # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
+    os.system('ffmpeg -i "%s" -c:v libx264 "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
     # plt.plot(x_time, y_pred)
     # plt.savefig(save_path+'.png', dpi=300)
