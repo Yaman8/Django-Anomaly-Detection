@@ -4,11 +4,21 @@
     <link rel="stylesheet" href="{% static 'main.css' %}" type="text/css"/>
 {% endblock %}
 {% block content %}
-<form method="post" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
+<form method="post" id="MyGreatFileUploadForm" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="file" name="sentFile" />
-    <input type="submit" value="Upload" class="submitbtn"/>
+    <span class="h2">Just </span>
+    <input type="file" id="hiddenUploadButton" name="sentFile" onChange="document.getElementById('MyGreatFileUploadForm').submit();" style="display:none;" />
+    <input type="button" id="upload" value="Upload" onclick="document.getElementById('hiddenUploadButton').click();" class="submitbtn"/><span class="h2"> your file here and get
+        started!</span>
 </form> 
+
+<form method="post" id="MyGreatFileUploadForm" action="{% url 'upload' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <span class="h2">Just </span>
+    <input type="file" id="hiddenUploadButton" onChange="document.getElementById('MyGreatFileUploadForm').submit();" style="display:none;" />
+    <button type="button" class="upload" id="upload" onclick="document.getElementById('hiddenUploadButton').click();">upload</button><span class="h2"> your file here and get
+      started!</span>
+</form>
 {% endblock %}
 {% block js %}
     <!-- <script>
