@@ -22,10 +22,7 @@ def save_video(request):
 
 
     return render(request,'video.html',context={'video_url': full_url})
-        # filename=f.save()
-    # return HttpResponse('Home page')
-# def display(request):
-#     vid=Video.objects.all()
+
 
 def extract_snippet(request):
     if request.method=='POST':
