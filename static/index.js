@@ -306,6 +306,9 @@ function createExtractChapter() {
     chapter.innerHTML = '<image class="chapterImage" src="poster.jpg"><div class="chapterText"><p class="chapterTimeInterval">00:00 - 1:30</p><image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()"></div>';
     sideTab.appendChild(chapter);
 }
+function sendDownloadRequest() {
+
+}
 // Add eventlisteners here
 playButton.addEventListener('click', togglePlay);
 chapterButton.addEventListener('click', toggleSideTab);
