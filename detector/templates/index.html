@@ -1,3 +1,4 @@
+{% load static %}
 <html lang="en">
   {% load static %}
 <head>
@@ -8,7 +9,7 @@
   <meta name="author" content="Kuu">
   <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <link rel="stylesheet" href="{% static 'styles.css' %}" type="text/css">
 
 </head>
 
@@ -142,14 +143,16 @@
     <div class="header" style="display:none;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
-      <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
-      <label for="startTime" class="h3">Start time - </label>
-      <input type="range" class="extractTime" id="startTime" name="startTime" min="0" max="1000" step="1" value="150">
-      <br>
-      <label for="endTime" class="h3">..End time - </label>
-      <input type="range" class="extractTime" id="endTime" name="endTime" min="0"  max="1000" step="1" value="300">
-      <br><br>
-      <button id="downloadButton">Download Clip</button>
+      <form method="POST" action="{% url 'timestamp' %}">
+        {% csrf_token %}
+        <p class="h3">Enter the start and end times (in seconds) of the clip you want to download:</p><br>
+        <input type="number" id="startTime" name="start" min="0" value="10">
+        <label for="startTime" class="h3">- Start time</label><br>
+        <input type="number" id="endTime" name="duration" min="0" value="20">
+        <label for="endTime" class="h3">- End time</label><br><br>
+        <input type="submit" value="Submit" class="submitbtn"/>
+        <!-- <button id="downloadButton">Download Clip</button> -->
+      </form>
     </div>
   </div>
   <svg style="display: none">
@@ -225,7 +228,7 @@
       </symbol>
     </defs>
   </svg>
-  <script src="{% static 'index.js' %}"></script>
+  <script src="{% static 'index.js' %}" type="application/javascript"></script>
 </body>
 
 </html>
