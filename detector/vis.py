@@ -25,6 +25,8 @@ from tqdm import tqdm
 import sys
 import argparse
 
+from functools import partial
+
 try:
     import accimage
 except ImportError:
@@ -111,37 +113,81 @@ class Normalize(object):
 #                        MAIN CODE                          #
 #############################################################
 model = generate_model()  # feature extrctir
-classifier = Learner().cuda()  # classifier
+classifier = Learner()#.cuda()  # classifier
+
+device = 'cpu'
 
 checkpoint = torch.load(
-    'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
+    'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
 model.load_state_dict(checkpoint['state_dict'])
 checkpoint = torch.load(
-    'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
+    'detector\\weight\\ckpt.pth', map_location=torch.device(device))
 classifier.load_state_dict(checkpoint['net'])
 
 model.eval()
 classifier.eval()
-y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
-def process_frame(i):
+def proc_initializer(_shared_frames_list,_save_path,_chunk_size,_model,_classifier):
+    global vid_frames, save_path
+    vid_frames = _shared_frames_list
+    save_path = _save_path
+
+    global model, classifier
+    model = _model  #copy.copy(_model)
+    classifier = _classifier    #copy.copy(_classifier)
+
+    
+    global chunk_size 
+    chunk_size = _chunk_size 
+
     global inputs
-    save_path = 'media\\' + \
-        i.split('\\')[0][:-4] + '_result'
-    print(save_path)
-    num = int(i.split('\\')[-1].split('.')[0])
-    if num < 16:
-        inputs[:, :, num, :, :] = ToTensor(1)(Image.open(i))
-        cv_img = cv2.imread(i)
-        # print(cv_img.shape)
-        h, w, _ = cv_img.shape
-        cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
-                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
-    else:
+    inputs = torch.Tensor(1, 3, 16, 240, 320)
+
+    global num_frames 
+    num_frames = len(vid_frames)
+
+
+def process_chunk(init_frame_ind):
+    #this will be shared by all processes
+    global vid_frames
+    #these are made available by the initializer for a process/worker 
+    global inputs,model,classifier
+    global chunk_size,num_frames,save_path
+    
+    if not os.path.isdir(save_path):
+        os.mkdir(save_path)
+
+    # y_pred = []
+    start = init_frame_ind-16
+    if start<0:
+        start = 0
+    for i in range(16):
+        inputs[:, :, i, :, :] = ToTensor(1)(Image.open(vid_frames[start+i]))
+        if init_frame_ind==0:
+            cv_img = cv2.imread(i)
+            # print(cv_img.shape)
+            h, w, _ = cv_img.shape
+            cv_img = cv2.putText(cv_img, 'FPS : 0.0, Pred : 0.0', (5, 15),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
+
+            path = save_path+'/'+os.path.basename(vid_frames[start+i])
+            cv2.imwrite(path, cv_img)
+
+    #start reused
+    start = init_frame_ind
+    if start==0: 
+        start+=16
+        # y_pred=[0]*16
+    end = init_frame_ind+chunk_size
+    if end>num_frames:
+        end = num_frames
+
+    y_pred = []
+    for i in range(start, end):
         inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
-        inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
-        inputs = inputs.cuda()
+        inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(vid_frames[i]))
+        inputs = inputs#.cuda()
         start = time.time()
         output, feature = model(inputs)
         feature = F.normalize(feature, p=2, dim=1)
@@ -152,45 +198,69 @@ def process_frame(i):
         out_str = str(out.item())[:5]
         # print(len(x_value)/len(y_pred))
 
-        cv_img = cv2.imread(i)
+        cv_img = cv2.imread(vid_frames[i])
         cv_img = cv2.putText(cv_img, 'FPS :'+FPS+' Pred :'+out_str,
                              (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 240), 2)
         if out.item() > 0.4:
             cv_img = cv2.rectangle(cv_img, (0, 0), (w, h), (0, 0, 255), 3)
+        
+        path = save_path+'/'+os.path.basename(vid_frames[i])
+        cv2.imwrite(path, cv_img)
+    
+    return y_pred
 
-    if not os.path.isdir(save_path):
-        os.mkdir(save_path)
-
-    path = save_path+'/'+os.path.basename(i)
-    # print('++++*****', path, cv_img)
-    cv2.imwrite(path, cv_img)
-
-
+            
+###############################################################################################################
+    
+import math
 def generate_vid(vid):
     path = 'media/' + \
         vid[:-4] + '/*'
     # path='/media/yaman/new-e/Major-Project/VIS/video/Explosion001_x264.mp4'+'/*'
     save_path = 'media\\' + \
         vid[:-4] + '_result'
-    img = glob.glob(path)
+    frames = glob.glob(path)
     # print(img)
-    img.sort()
+    frames.sort()
     count = 0
 
-    segment = len(img)//16
+    segment = len(frames)//16
     x_value = [i for i in range(segment)]
 
     inputs = torch.Tensor(1, 3, 16, 240, 320)
-    x_time = [jj for jj in range(len(img))]
+    x_time = [jj for jj in range(len(frames))]
     y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     # total_tensor
 
-    with Pool(4) as p:
-        for i in tqdm(p.imap(process_frame, img), total=len(img)):
-            print(i)
+    chunk_size = 100
+    num_chunks = math.ceil(len(frames)/chunk_size)
+    chunk_ids = [i*chunk_size for i in range(num_chunks)]
+    with Pool(2,initializer=proc_initializer,init_args=[frames,save_path,chunk_size,model,classifier]) as p:
+        for pred in tqdm(*p.imap(process_chunk, chunk_ids), total=len(frames)):
+            y_pred.append(pred)
 
     os.system('ffmpeg -i "%s" "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
     # plt.plot(x_time, y_pred)
-    plt.savefig(save_path+'.png', dpi=300)
-    plt.cla()
+    # plt.savefig(save_path+'.png', dpi=300)
+    # plt.cla()
+
+
+import numpy as np
+
+'''
+    y_pred is an array of scores for each frame
+    returns [(start,end),...] such that for each (start,end) video_frames[start:end] gives all anamolous frames for that interval
+'''
+def get_suspc_moments(y_pred,threshold):
+    y_pred2 = (np.array(y_pred)>threshold).astype(int)
+    y_pred3 = np.array([0,*y_pred2[:-1]])
+    y_pred3-=y_pred2
+
+    starts = np.where(y_pred3==-1)[0]
+    ends = np.where(y_pred3==1)[0]
+    
+    if y_pred2[-1]==1:
+    	ends = np.append(ends,len(y_pred2))
+    
+    return zip(starts,ends)

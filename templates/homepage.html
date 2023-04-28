@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'main.css' %}" type="text/css"/>
+{% endblock %}
+{% block content %}
+<form method="post" action="{% url 'upload' %}" class="form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="sentFile" />
+    <input type="submit" value="Upload" class="submitbtn"/>
+</form> 
+{% endblock %}
+{% block js %}
+    <!-- <script>
+        $(document).ready(function () {
+
+            $('#file-upload').val('');
+
+            $('#file-upload').change(function () {
+                $('form p').text(this.files.length + " file(s) selected");
+                $(".fa-file-video").css('color', '#454cad');
+                $('#file-upload-btn').text('Uploading...')
+                $("form").trigger("submit");
+            });
+        });
+    </script> -->
+{% endblock %}
