@@ -165,7 +165,9 @@
           
         </div>
       </div>
+      
     </div>
+    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
     <div class="header" style="display:none; padding-bottom:100px;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
@@ -259,6 +261,7 @@
     </defs>
   </svg>
   <script src="{% static 'index.js' %}" type="application/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
   <script>
     console.log('hey there... {{y_preds}}')
     function getMyThumb(start_time){
@@ -324,6 +327,50 @@
 
     },false);
 
+      var ctx = document.getElementById('myChart').getContext('2d');
+      var myChart = new Chart(ctx, {
+          type: "line",
+          data: {
+              labels: ".....",
+              datasets: [{
+                  label: "......",
+                  data: [2220, 19998, 55547, 55784, 999985], //data_of_charts
+                  backgroundColor: [
+                      'rgba(47, 152, 208, 0.2)',
+                  ],
+                  borderColor: [
+                      'rgba(19, 247, 228,1)',
+                  ],
+                  borderWidth: 2,
+                  pointBackgroundColor: 'rgba(19, 247, 228,1)',
+                  pointBorderColor: 'rgba(19, 247, 228,1)',
+                  pointBorderWidth: 5,
+              }]
+          },
+          options: {
+              scales: {
+                xAxes: [{
+                  gridLines: {
+                     display: false
+                  }
+               }],
+               yAxes: [{
+                  gridLines: {
+                     display: false
+                  }
+               }]
+              },
+              tooltips: {
+                callbacks: {
+                   label: function(t, d) {
+                      var xLabel = d.datasets[t.datasetIndex].label;
+                      var yLabel = d.datasets[t.datasetIndex].data[t.index];
+                      return xLabel + ': $' + yLabel;
+                   }
+                }
+             }
+          }
+      });
   </script>
 </body>
 
