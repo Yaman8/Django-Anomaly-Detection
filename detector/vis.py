@@ -351,13 +351,13 @@ class MyPool(multiprocessing.pool.Pool):
 
 def generate_vid(vid):
     model = generate_model()  # feature extrctir
-    classifier = Learner().cuda()  # classifier
+    classifier = Learner()  # classifier
 
     checkpoint = torch.load(
-        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device('cuda'))
+        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
     model.load_state_dict(checkpoint['state_dict'])
     checkpoint = torch.load(
-        'detector\\weight\\ckpt.pth', map_location=torch.device('cuda'))
+        'detector\\weight\\ckpt.pth', map_location=torch.device(device))
     classifier.load_state_dict(checkpoint['net'])
 
     model.eval()
@@ -371,7 +371,7 @@ def generate_vid(vid):
     img = glob.glob(path)
     # print(img)
     img.sort()
-    # img = img[:15]
+    img = img[:40]
     count = 0
 
     segment = len(img)//16
@@ -392,7 +392,7 @@ def generate_vid(vid):
         else:
             inputs[:, :, :15, :, :] = inputs[:, :, 1:, :, :]
             inputs[:, :, 15, :, :] = ToTensor(1)(Image.open(i))
-            inputs = inputs.cuda()
+            inputs = inputs
             start = time.time()
             output, feature = model(inputs)
             feature = F.normalize(feature, p=2, dim=1)

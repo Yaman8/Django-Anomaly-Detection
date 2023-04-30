@@ -48,8 +48,12 @@ def extract_snippet(request):
         duration = post_data.get('duration')
         print("Start:", start)
         print("Duration:", duration)
+        global full_url
+        
+        my_url = full_url.split('/',3)[3]
+        print(full_url)
         other_extract_snippet(
-            full_url, start, duration)
+            my_url, start, duration)
         return render(request, 'index.html')
     else:
         return render(request, 'index.html')
