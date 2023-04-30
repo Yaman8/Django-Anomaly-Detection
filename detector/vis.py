@@ -110,7 +110,7 @@ class Normalize(object):
 model = generate_model()  # .cuda()  # feature extrctir
 classifier = Learner()  # .cuda()  # classifier
 
-device = 'cpu'
+device = 'cuda'
 
 if device == 'cuda':
     model = model.cuda()
@@ -350,8 +350,8 @@ class MyPool(multiprocessing.pool.Pool):
 
 
 def generate_vid(vid):
-    model = generate_model()  # feature extrctir
-    classifier = Learner()  # classifier
+    global model  # feature extrctir
+    global classifier  # classifier
 
     checkpoint = torch.load(
         'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
@@ -371,7 +371,7 @@ def generate_vid(vid):
     img = glob.glob(path)
     # print(img)
     img.sort()
-    img = img[:40]
+    # img = img[:250]
     count = 0
 
     segment = len(img)//16

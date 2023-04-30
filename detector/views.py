@@ -49,8 +49,8 @@ def extract_snippet(request):
         print("Start:", start)
         print("Duration:", duration)
         global full_url
-        
-        my_url = full_url.split('/',3)[3]
+
+        my_url = full_url.split('/', 3)[3]
         print(full_url)
         other_extract_snippet(
             my_url, start, duration)
