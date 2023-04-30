@@ -48,7 +48,7 @@ class ToTensor(object):
             pic (PIL.Image or numpy.ndarray): Image to be converted to tensor.
         Returns:
             Tensor: Converted image.
-        """
+        """ 
         if isinstance(pic, np.ndarray):
             # handle numpy array
             img = torch.from_numpy(pic.transpose((2, 0, 1)))
@@ -109,21 +109,7 @@ class Normalize(object):
 model = generate_model()#.cuda()  # feature extrctir
 classifier = Learner()#.cuda()  # classifier
 
-device = 'cuda'
 
-if device=='cuda':
-    model = model.cuda()
-    classifier = classifier.cuda()
-
-checkpoint = torch.load(
-    'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
-model.load_state_dict(checkpoint['state_dict'])
-checkpoint = torch.load(
-    'detector\\weight\\ckpt.pth', map_location=torch.device(device))
-classifier.load_state_dict(checkpoint['net'])
-
-model.eval()
-classifier.eval()
 
 #This part is for using multiple processes to perform our computation
 ############################################################################################################################################
@@ -136,6 +122,22 @@ def proc_initializer(_shared_frames_list,_save_path,_chunk_size,_model,_classifi
     global model, classifier
     model = _model  #copy.copy(_model)
     classifier = _classifier    #copy.copy(_classifier)
+
+    device = 'cpu'
+
+    if device=='cuda':
+        model = model.cuda()
+        classifier = classifier.cuda()
+
+    checkpoint = torch.load(
+        'detector\\weight\\RGB_Kinetics_16f.pth', map_location=torch.device(device))
+    model.load_state_dict(checkpoint['state_dict'])
+    checkpoint = torch.load(
+        'detector\\weight\\ckpt.pth', map_location=torch.device(device))
+    classifier.load_state_dict(checkpoint['net'])
+
+    model.eval()
+    classifier.eval()
 
     
     global chunk_size 
@@ -245,7 +247,7 @@ def get_preds():
     num_chunks = math.ceil(len(vid_frames)/chunk_size)
     chunk_ids = [i*chunk_size for i in range(num_chunks)]
 
-    with Pool(2,initializer=proc_initializer,initargs=[vid_frames,save_path,chunk_size,model,classifier,inter_proc_q]) as p:
+    with Pool(3,initializer=proc_initializer,initargs=[vid_frames,save_path,chunk_size,model,classifier,inter_proc_q]) as p:
         print("In update preds")
         y_preds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for pred in p.imap(process_chunk, chunk_ids):
@@ -313,7 +315,7 @@ def generate_vid(vid):
     x_time = [jj for jj in range(len(frames))]
     y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    chunk_size = 20
+    chunk_size = 100
     # num_chunks = math.ceil(len(frames)/chunk_size)
     # chunk_ids = [i*chunk_size for i in range(num_chunks)]
     # print(chunk_ids)
