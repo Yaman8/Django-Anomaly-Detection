@@ -417,10 +417,12 @@ def generate_vid(vid):
         cv2.imwrite(path, cv_img)
 
     # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
-    os.system('ffmpeg -i "%s" -c:v libx264 "%s"' %
+    os.system('ffmpeg -y -i "%s" -c:v libx264 "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
-
-    return get_suspc_moments(y_pred, 0.4)
+    susp_moments = get_suspc_moments(y_pred, 0.4)
+    # susp_thumbs = [img[interval[0]] for interval in susp_moments ]
+    # return susp_moments,susp_thumbs, y_pred
+    return susp_moments, y_pred
     # plt.plot(x_time, y_pred)
     # plt.savefig(save_path+'.png', dpi=300)
     # plt.cla()

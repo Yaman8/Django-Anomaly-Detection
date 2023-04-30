@@ -75,6 +75,34 @@
         <video controls class="video" id="video" preload="metadata" poster="{% static 'poster.jpg' %}">
           <source src="{{video_url}}" type="video/mp4">  
         </video>
+        <script>
+          function getMyThumb(start_time){
+            // Get the video element
+            const video = document.getElementById("video");
+
+            // Create a canvas element
+            const canvas = document.createElement("canvas");
+
+            // Set the canvas dimensions to match the video dimensions
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Get the context of the canvas
+            const ctx = canvas.getContext("2d");
+
+
+            // Seek to the time in the video that you want to extract the frame from
+            video.currentTime = start_time;
+            // Draw the current frame of the video onto the canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Convert the canvas to an image URL
+            const dataURL = canvas.toDataURL();
+
+            return dataURL
+
+          }
+
+        </script>
 
         <div class="video-controls hidden" id="video-controls">
 
@@ -277,9 +305,10 @@
       time = formatTime(Math.round(endTime));
       endTime = `${time.minutes}:${time.seconds}`;
 
+      const thumb_url = getMyThumb(startTime)
       const chapter = document.createElement("div");
       chapter.className = "chapterElement";
-      chapter.innerHTML = `<div class="chapterVideo"><image class="chapterImage" src="{% static "poster.jpg" %}" onclick="skipVideoTo('${startTime}');"></div><div class="chapterText"> <p class="chapterTimeInterval">${newStartTime} - ${endTime}</p>      <div onclick="sendDownloadRequest()" id="downloadSmall">        <image data-title="Download" class="download-icons" src="{% static "downloadIcon.svg" %}" />            </div>     </div>`;
+      chapter.innerHTML = `<div class="chapterVideo"><image class="chapterImage" src="{% static "${thumb_url}" onclick="skipVideoTo('${startTime}');"></div><div class="chapterText"> <p class="chapterTimeInterval">${newStartTime} - ${endTime}</p>      <div onclick="sendDownloadRequest()" id="downloadSmall">        <image data-title="Download" class="download-icons" src="{% static "downloadIcon.svg" %}" />            </div>     </div>`;
       sideTab.appendChild(chapter);
     }
 
