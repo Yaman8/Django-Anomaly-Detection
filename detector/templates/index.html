@@ -12,25 +12,7 @@
 
   <script src = 'https://code.jquery.com/jquery-3.6.3.min.js' type="application/javascript"></script>
   <script type="text/javascript">
-    function formatTime(timeInSeconds) {
-      const result = new Date(timeInSeconds * 1000).toISOString().substring(11, 19);
-      return {
-          minutes: result.substring(3, 5),
-          seconds: result.substring(6, 8),
-      };
-  }
-    function createExtractChapter(startTime, endTime) {
-      
-      const time = formatTime(Math.round(video.currentTime));
-      timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
-
-      const chapter = document.createElement("div");
-      chapter.className = "chapterElement";
-      chapter.innerHTML = `<div class="chapterVideo"><image class="chapterImage" src="{% static "poster.jpg" %}"></div><div class="chapterText"> <p class="chapterTimeInterval">${startTime} - ${endTime}</p>      <div onclick="sendDownloadRequest()" id="downloadSmall">        <image data-title="Download" class="download-icons" src="{% static "downloadIcon.svg" %}" />            </div>     </div>`;
-      sideTab.appendChild(chapter);
-    }
-
-
+   
     function sendDownloadRequest() {
       const start= document.getElementById('seek-initial').value;
       const final= document.getElementById('seek-final').value;
@@ -278,14 +260,34 @@
   </svg>
   <script src="{% static 'index.js' %}" type="application/javascript"></script>
   <script>
-    {% comment %} const data = '{{ susp_moments | safe }}'; {% endcomment %}
-    {% comment %} const data = '[(10,25),(35,45)]';
+    function skipVideoTo(time){
+      video.currentTime = String(time);
+      progressBar.value = time;
+      seek.value = time;
+    }
+    function createExtractChapter(startTime, endTime) {
+
+      let time = formatTime(Math.round(startTime));
+      console.log(`time: ${time}`);
+
+      const newStartTime = `${time.minutes}:${time.seconds}`;
+      time = formatTime(Math.round(endTime));
+      endTime = `${time.minutes}:${time.seconds}`;
+
+      const chapter = document.createElement("div");
+      chapter.className = "chapterElement";
+      chapter.innerHTML = `<div class="chapterVideo"><image class="chapterImage" src="{% static "poster.jpg" %}" onclick="skipVideoTo('${startTime}');"></div><div class="chapterText"> <p class="chapterTimeInterval">${newStartTime} - ${endTime}</p>      <div onclick="sendDownloadRequest()" id="downloadSmall">        <image data-title="Download" class="download-icons" src="{% static "downloadIcon.svg" %}" />            </div>     </div>`;
+      sideTab.appendChild(chapter);
+    }
+
+    const data = '{{ susp_moments | safe }}';
+    {% comment %} const data = '[[10,25],[35,45]]'; {% endcomment %}
     
     const intervals=JSON.parse(data);
     intervals.forEach((timeSet) => {
-      console.log(`startime:${timeSet[0]/25} and endtime:${timeSet[1]/25}`)
-      createExtractChapter(timeSet[0]/25,timeSet[1]/25)
-    }); {% endcomment %}
+      {% comment %} console.log(`startime:${timeSet[0]/25} and endtime:${timeSet[1]/25}`) {% endcomment %}
+      createExtractChapter((timeSet[0]+1)/25,timeSet[1]/25)
+    });
 
   </script>
 </body>

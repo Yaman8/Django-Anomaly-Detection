@@ -539,6 +539,7 @@ svg {
 .chapterImage:hover {
 	filter: none;
 	transition: all 0.2s ease;
+	cursor: pointer;
 }
 
 .chapterText {
