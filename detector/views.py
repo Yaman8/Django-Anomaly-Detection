@@ -30,7 +30,7 @@ def save_video(request):
         print(type(susp_moments))
         global full_url
         full_url = 'http://127.0.0.1:8000/media/'+f.name[:-4]+'_result.mp4'
-        print(full_url)
+        # print('y_preds',y_preds)
     return render(request, 'index.html', context={'video_url': full_url, 'susp_moments': (json.dumps(susp_moments)), 'y_preds': (json.dumps(y_preds))})
     # filename=f.save()
     # return HttpResponse('Home page')

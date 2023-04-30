@@ -73,6 +73,7 @@ function updatePlayButton() {
 // formatTime takes a time length in seconds and returns the time in
 // minutes and seconds
 function formatTime(timeInSeconds) {
+    console.log(timeInSeconds)
     const result = new Date(timeInSeconds * 1000).toISOString().substring(11, 19);
     return {
         minutes: result.substring(3, 5),
