@@ -12,17 +12,25 @@
 
   <script src = 'https://code.jquery.com/jquery-3.6.3.min.js' type="application/javascript"></script>
   <script type="text/javascript">
-    var loadedIntervals=false;
-    $(document).ready(function() {
-      $('#chapter').on('click', function() {
-        if(!loadedIntervals){
-          $.get("{% url 'intervals' %}", function(data) {
-            console.log(data);
-            loadedIntervals=true;
-          });
-        }
-      });
-    });
+    function formatTime(timeInSeconds) {
+      const result = new Date(timeInSeconds * 1000).toISOString().substring(11, 19);
+      return {
+          minutes: result.substring(3, 5),
+          seconds: result.substring(6, 8),
+      };
+  }
+    function createExtractChapter(startTime, endTime) {
+      
+      const time = formatTime(Math.round(video.currentTime));
+      timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
+
+      const chapter = document.createElement("div");
+      chapter.className = "chapterElement";
+      chapter.innerHTML = `<div class="chapterVideo"><image class="chapterImage" src="{% static "poster.jpg" %}"></div><div class="chapterText"> <p class="chapterTimeInterval">${startTime} - ${endTime}</p>      <div onclick="sendDownloadRequest()" id="downloadSmall">        <image data-title="Download" class="download-icons" src="{% static "downloadIcon.svg" %}" />            </div>     </div>`;
+      sideTab.appendChild(chapter);
+    }
+
+
     function sendDownloadRequest() {
       const start= document.getElementById('seek-initial').value;
       const final= document.getElementById('seek-final').value;
@@ -69,6 +77,7 @@
         <input type="file" id="hiddenUploadButton" name="sentFile" onChange="document.getElementById('MyGreatFileUploadForm').submit();" style="display:none;" />
         <button type="button" class="upload" id="upload" onclick="document.getElementById('hiddenUploadButton').click();">upload</button><span class="h2"> your file here and get
           started!</span>
+        <button type="button" class="upload" id="upload" onclick="createExtractChapter('00:00','10:00');">Add Chap</button>
     </form>
       
     </div>
@@ -170,50 +179,7 @@
         </div>
 
         <div class="sideTab hide" id="sideTab">
-          <div class="chapterElement">
-            <div class="chapterVideo">
-              <image class="chapterImage" src="{% static 'poster.jpg' %}">
-            </div>
-            <div class="chapterText">
-              <p class="chapterTimeInterval">00:15 - 00:20</p>
-              <div onclick="sendDownloadRequest()" id="downloadSmall">
-                <image data-title="Download" class="download-icons" src="{% static 'downloadIcon.svg' %}" />      
-              </div> 
-            </div>
-          </div>
-          <div class="chapterElement">
-            <div class="chapterVideo">
-              <image class="chapterImage" src="{% static 'poster.jpg' %}">
-            </div>
-            <div class="chapterText">
-              <p class="chapterTimeInterval">00:15 - 00:20</p>
-              <div onclick="sendDownloadRequest()" id="downloadSmall">
-                <image data-title="Download" class="download-icons" src="{% static 'downloadIcon.svg' %}" />      
-              </div> 
-            </div>
-          </div>
-          <div class="chapterElement">
-            <div class="chapterVideo">
-              <image class="chapterImage" src="{% static 'poster.jpg' %}">
-            </div>
-            <div class="chapterText">
-              <p class="chapterTimeInterval">00:15 - 00:20</p>
-              <div onclick="sendDownloadRequest()" id="downloadSmall">
-                <image data-title="Download" class="download-icons" src="{% static 'downloadIcon.svg' %}" />      
-              </div> 
-            </div>
-          </div>
-          <div class="chapterElement">
-            <div class="chapterVideo">
-              <image class="chapterImage" src="{% static 'poster.jpg' %}">
-            </div>
-            <div class="chapterText">
-              <p class="chapterTimeInterval">00:15 - 00:20</p>
-              <div onclick="sendDownloadRequest()" id="downloadSmall">
-                <image data-title="Download" class="download-icons" src="{% static 'downloadIcon.svg' %}" />      
-              </div> 
-            </div>
-          </div>
+          
           
         </div>
       </div>
@@ -311,7 +277,17 @@
     </defs>
   </svg>
   <script src="{% static 'index.js' %}" type="application/javascript"></script>
-  
+  <script>
+    {% comment %} const data = '{{ susp_moments | safe }}'; {% endcomment %}
+    {% comment %} const data = '[(10,25),(35,45)]';
+    
+    const intervals=JSON.parse(data);
+    intervals.forEach((timeSet) => {
+      console.log(`startime:${timeSet[0]/25} and endtime:${timeSet[1]/25}`)
+      createExtractChapter(timeSet[0]/25,timeSet[1]/25)
+    }); {% endcomment %}
+
+  </script>
 </body>
 
 </html>

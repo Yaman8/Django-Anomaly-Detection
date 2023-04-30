@@ -23,12 +23,13 @@ def save_video(request):
         url = default_storage.url(file_name)
         context = {'message': file_name}
         to_frames(url, f.name)
-        generate_vid(f.name)
+        susp_moments = list(generate_vid(f.name))
+        # susp_moments = list(susp_moments)
+        print(type(susp_moments))
         global full_url
         full_url = 'http://127.0.0.1:8000/media/'+f.name[:-4]+'_result.mp4'
         print(full_url)
-
-    return render(request, 'index.html', context={'video_url': full_url})
+    return render(request, 'index.html', context={'video_url': full_url, 'susp_moments': (json.dumps(susp_moments))})
     # filename=f.save()
     # return HttpResponse('Home page')
 # def display(request):
@@ -52,10 +53,3 @@ def extract_snippet(request):
         return render(request, 'index.html')
     else:
         return render(request, 'index.html')
-
-
-def get_anomaly_intervals(request):
-    # print(get_suspc_moments(0.4))
-    print("it's here")
-    # return HttpResponse(json.dumps(get_suspc_moments(0.4)))
-    return HttpResponse(json.dumps("it's here"))

@@ -6,5 +6,5 @@ urlpatterns = [
     path('',views.home,name='home'),
     path('upload/',views.save_video,name='upload'),
     path('timestamp/',views.extract_snippet,name='timestamp'),
-    path('intervals/',views.get_anomaly_intervals,name='intervals')
+    # path('intervals/',views.get_anomaly_intervals,name='intervals')
 ]

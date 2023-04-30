@@ -15,6 +15,7 @@ const extractProgressFinal = document.getElementById('extract-progress-final');
 const midControls = document.getElementById('controls-non-extract');
 const midControlsExtract = document.getElementById('controls-extract');
 
+
 const progressBar = document.getElementById('progress-bar');
 const extractBarInitial = document.getElementById('extract-bar-initial')
 const extractBarFinal = document.getElementById('extract-bar-final')
@@ -301,12 +302,7 @@ function toggleExtract() {
     extractProgressGroup.classList.toggle('hide');
     extractProgressFinal.classList.toggle('hide');
 }
-function createExtractChapter() {
-    const chapter = document.createElement("div");
-    chapter.className = "chapterElement";
-    chapter.innerHTML = '<image class="chapterImage" src="poster.jpg"><div class="chapterText"><p class="chapterTimeInterval">00:00 - 1:30</p><image class="downloadImage" src="downloadButton.svg" onclick="TODOdownloadFunction()"></div>';
-    sideTab.appendChild(chapter);
-}
+
 
 // Add eventlisteners here
 playButton.addEventListener('click', togglePlay);

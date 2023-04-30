@@ -122,7 +122,6 @@ model.load_state_dict(checkpoint['state_dict'])
 checkpoint = torch.load(
     'detector\\weight\\ckpt.pth', map_location=torch.device(device))
 classifier.load_state_dict(checkpoint['net'])
-y_pred=[]
 
 model.eval()
 classifier.eval()
@@ -372,6 +371,7 @@ def generate_vid(vid):
     img = glob.glob(path)
     # print(img)
     img.sort()
+    # img = img[:15]
     count = 0
 
     segment = len(img)//16
@@ -419,6 +419,8 @@ def generate_vid(vid):
     # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
     os.system('ffmpeg -i "%s" -c:v libx264 "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
+
+    return get_suspc_moments(y_pred, 0.4)
     # plt.plot(x_time, y_pred)
     # plt.savefig(save_path+'.png', dpi=300)
     # plt.cla()
@@ -430,15 +432,15 @@ def generate_vid(vid):
 '''
 
 
-def get_suspc_moments(threshold):
+def get_suspc_moments(y_pred, threshold):
     y_pred2 = (np.array(y_pred) > threshold).astype(int)
     y_pred3 = np.array([0, *y_pred2[:-1]])
     y_pred3 -= y_pred2
 
-    starts = np.where(y_pred3 == -1)[0]
-    ends = np.where(y_pred3 == 1)[0]
-
     if y_pred2[-1] == 1:
         ends = np.append(ends, len(y_pred2))
+
+    starts = list(np.where(y_pred3 == -1)[0].tolist())
+    ends = list(np.where(y_pred3 == 1)[0].tolist())
 
     return zip(starts, ends)
