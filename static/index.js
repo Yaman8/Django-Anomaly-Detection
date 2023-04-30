@@ -9,7 +9,8 @@ const timeElapsed = document.getElementById('time-elapsed');
 const duration = document.getElementById('duration');
 
 const videoProgressGroup = document.getElementById('video-progress');
-const extractProgressGroup = document.getElementById('extract-progress');
+const extractProgressGroup = document.getElementById('extract-progress-initial');
+const extractProgressFinal = document.getElementById('extract-progress-final');
 
 const midControls = document.getElementById('controls-non-extract');
 const midControlsExtract = document.getElementById('controls-extract');
@@ -72,7 +73,6 @@ function updatePlayButton() {
 // minutes and seconds
 function formatTime(timeInSeconds) {
     const result = new Date(timeInSeconds * 1000).toISOString().substring(11, 19);
-
     return {
         minutes: result.substring(3, 5),
         seconds: result.substring(6, 8),
@@ -103,6 +103,8 @@ function updateTimeElapsed() {
     const time = formatTime(Math.round(video.currentTime));
     timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
     timeElapsed.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
+    // console.log(video.currentTime);
+    // console.log(time);
 }
 
 // updateProgress indicates how far through the video
@@ -110,8 +112,6 @@ function updateTimeElapsed() {
 function updateProgress() {
     seek.value = Math.floor(video.currentTime);
     progressBar.value = Math.floor(video.currentTime);
-
-    extractBarFinal.value
 }
 
 // updateSeekTooltip uses the position of the mouse on the progress bar to
@@ -125,8 +125,8 @@ function updateSeekTooltip(event) {
     seek.setAttribute('data-seek', skipTo);
     const t = formatTime(skipTo);
     seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = video.getBoundingClientRect();
-    seekTooltip.style.left = `${event.pageX - rect.left}px`;
+    const rect2 = progressBar.getBoundingClientRect();
+    seekTooltip.style.left = `${event.pageX - rect2.left}px`;
 }
 
 function updateSeekTooltipInitial(event) {
@@ -137,7 +137,7 @@ function updateSeekTooltipInitial(event) {
     seekInitial.setAttribute('data-seek', skipTo);
     const t = formatTime(skipTo);
     seekTooltipInitial.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = video.getBoundingClientRect();
+    const rect = extractBarInitial.getBoundingClientRect();;
     seekTooltipInitial.style.left = `${event.pageX - rect.left}px`;
 }
 
@@ -149,7 +149,7 @@ function updateSeekTooltipFinal(event) {
     seekFinal.setAttribute('data-seek', skipTo);
     const t = formatTime(skipTo);
     seekTooltipFinal.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = video.getBoundingClientRect();
+    const rect = extractBarFinal.getBoundingClientRect();
     seekTooltipFinal.style.left = `${event.pageX - rect.left}px`;
 }
 // skipAhead jumps to a different point in the video when the progress bar
@@ -158,7 +158,7 @@ function skipAhead(event) {
     const skipTo = event.target.dataset.seek
         ? event.target.dataset.seek
         : event.target.value;
-    video.currentTime = skipTo;
+    video.currentTime = String(skipTo);
     progressBar.value = skipTo;
     seek.value = skipTo;
 }
@@ -166,7 +166,7 @@ function skipAheadInitial(event) {
     const skipTo = event.target.dataset.seek
         ? event.target.dataset.seek
         : event.target.value;
-    video.currentTime = skipTo;
+    video.currentTime = String(skipTo);
     extractBarInitial.value = skipTo;
     seekInitial.value = skipTo;
 }
@@ -174,7 +174,7 @@ function skipAheadFinal(event) {
     const skipTo = event.target.dataset.seek
         ? event.target.dataset.seek
         : event.target.value;
-    video.currentTime = skipTo;
+    video.currentTime = String(skipTo);
     extractBarFinal.value = skipTo;
     seekFinal.value = skipTo;
 }
@@ -299,6 +299,7 @@ function toggleExtract() {
     midControlsExtract.classList.toggle('hide');
     videoProgressGroup.classList.toggle('hide');
     extractProgressGroup.classList.toggle('hide');
+    extractProgressFinal.classList.toggle('hide');
 }
 function createExtractChapter() {
     const chapter = document.createElement("div");
@@ -330,6 +331,7 @@ seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
 seek.addEventListener('input', skipAhead);
 seekInitial.addEventListener('input', skipAheadInitial);
 seekFinal.addEventListener('input', skipAheadFinal);
+
 // volume.addEventListener('input', updateVolume);
 // volumeButton.addEventListener('click', toggleMute);
 // fullscreenButton.addEventListener('click', toggleFullScreen);

@@ -110,7 +110,7 @@ class Normalize(object):
 model = generate_model()  # .cuda()  # feature extrctir
 classifier = Learner()  # .cuda()  # classifier
 
-device = 'cuda'
+device = 'cpu'
 
 if device == 'cuda':
     model = model.cuda()
@@ -122,6 +122,7 @@ model.load_state_dict(checkpoint['state_dict'])
 checkpoint = torch.load(
     'detector\\weight\\ckpt.pth', map_location=torch.device(device))
 classifier.load_state_dict(checkpoint['net'])
+y_pred=[]
 
 model.eval()
 classifier.eval()
@@ -297,6 +298,8 @@ class MyPool(multiprocessing.pool.Pool):
 ##################################################################################################################################################
 
 # With Multi
+
+
 # def generate_vid(vid):
 #     path = 'media/' + \
 #         vid[:-4] + '/*'
@@ -427,7 +430,7 @@ def generate_vid(vid):
 '''
 
 
-def get_suspc_moments(y_pred, threshold):
+def get_suspc_moments(threshold):
     y_pred2 = (np.array(y_pred) > threshold).astype(int)
     y_pred3 = np.array([0, *y_pred2[:-1]])
     y_pred3 -= y_pred2
