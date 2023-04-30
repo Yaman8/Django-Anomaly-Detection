@@ -23,13 +23,15 @@ def save_video(request):
         url = default_storage.url(file_name)
         context = {'message': file_name}
         to_frames(url, f.name)
-        susp_moments = list(generate_vid(f.name))
+        # susp_moments,thumbs, y_preds = generate_vid(f.name)
+        susp_moments, y_preds = generate_vid(f.name)
+        susp_moments = list(susp_moments)
         # susp_moments = list(susp_moments)
         print(type(susp_moments))
         global full_url
         full_url = 'http://127.0.0.1:8000/media/'+f.name[:-4]+'_result.mp4'
         print(full_url)
-    return render(request, 'index.html', context={'video_url': full_url, 'susp_moments': (json.dumps(susp_moments))})
+    return render(request, 'index.html', context={'video_url': full_url, 'susp_moments': (json.dumps(susp_moments)), 'y_preds': (json.dumps(y_preds))})
     # filename=f.save()
     # return HttpResponse('Home page')
 # def display(request):
