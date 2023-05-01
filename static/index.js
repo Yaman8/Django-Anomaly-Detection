@@ -22,8 +22,10 @@ const extractBarFinal = document.getElementById('extract-bar-final')
 const anomScoresGraph = document.getElementById('anom-scores-graph');
 
 const seek = document.getElementById('seek');
-const seekInitial = document.getElementById('seek-initial');
-const seekFinal = document.getElementById('seek-final');
+const seekInitial = document.getElementById('circle1');
+const seekFinal = document.getElementById('circle2');
+// const seekInitial = document.getElementById('seek-initial');
+// const seekFinal = document.getElementById('seek-final');
 
 
 const seekTooltip = document.getElementById('seek-tooltip');
@@ -136,13 +138,12 @@ function updateSeekTooltip(event) {
 function updateSeekTooltipInitial(event) {
     const skipTo = Math.round(
         (event.offsetX / event.target.clientWidth) *
-        parseInt(event.target.getAttribute('max'), 10)
+        video.duration
     );
-    seekInitial.setAttribute('data-seek', skipTo);
     const t = formatTime(skipTo);
-    seekTooltipInitial.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = extractBarInitial.getBoundingClientRect();;
-    seekTooltipInitial.style.left = `${event.pageX - rect.left}px`;
+    seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
+    const rect = document.querySelector(".slider-bar").getBoundingClientRect();
+    seekTooltip.style.left = `${event.pageX - rect.left}px`;
 }
 
 function updateSeekTooltipFinal(event) {
@@ -150,11 +151,10 @@ function updateSeekTooltipFinal(event) {
         (event.offsetX / event.target.clientWidth) *
         parseInt(event.target.getAttribute('max'), 10)
     );
-    seekFinal.setAttribute('data-seek', skipTo);
     const t = formatTime(skipTo);
-    seekTooltipFinal.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = extractBarFinal.getBoundingClientRect();
-    seekTooltipFinal.style.left = `${event.pageX - rect.left}px`;
+    seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
+    const rect = document.querySelector(".slider-bar").getBoundingClientRect();
+    seekTooltip.style.left = `${event.pageX - rect.left}px`;
 }
 // skipAhead jumps to a different point in the video when the progress bar
 // is clicked
@@ -369,8 +369,8 @@ videoControls.addEventListener('mouseenter', showControls);
 videoControls.addEventListener('mouseleave', hideControls);
 
 seek.addEventListener('mousemove', updateSeekTooltip);
-// seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
-// seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
+seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
+seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
 
 seek.addEventListener('input', skipAhead);
 // seekInitial.addEventListener('input', skipAheadInitial);

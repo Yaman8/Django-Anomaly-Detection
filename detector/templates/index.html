@@ -17,12 +17,14 @@
       
       const sliderInterval = document.querySelector(".slider-interval");
       
-      var left = (sliderInterval.style.left<0) ? 0:sliderInterval.style.left;
+      var left = (parseFloat(sliderInterval.style.left)<0) ? 0:parseFloat(sliderInterval.style.left);
       
-      const start= Math.round((sliderInterval.style.left / 100) * video.duration);
-      const duration= Math.round((sliderInterval.style.width / 100) * video.duration);
+      const start= Math.round((left / 100) * document.getElementById('video').duration);
+      const duration= Math.round((parseFloat(sliderInterval.style.width) / 100) * document.getElementById('video').duration);
 
-      console.log(`left: ${start}`);
+      console.log(`left: ${left}`);
+      console.log(`startTime: ${start}`);
+      console.log(`video Duration: ${document.getElementById('video').duration}`);
 
       let data = { start: new Date(start * 1000).toISOString().substring(11, 19), duration: new Date((duration) * 1000).toISOString().substring(11, 19) };
       console.log(data);
@@ -122,13 +124,11 @@
           {% comment %} <div class="extract-progress hide " id="extract-progress-initial">
             <progress id="extract-bar-initial" value="10" min="0"></progress>
             <input class="seek" id="seek-initial" value="10" min="0" type="range" step="1">
-            <div class="seek-tooltip" id="seek-tooltip-initial">00:00</div>
           </div>
 
           <div class="extract-progress hide" id="extract-progress-final">
             <progress id="extract-bar-final" value="30" min="0"></progress>
             <input class="seek" id="seek-final" value="30" min="0" type="range" step="1">
-            <div class="seek-tooltip" id="seek-tooltip-final">00:00</div>
           </div> {% endcomment %}
           
 
