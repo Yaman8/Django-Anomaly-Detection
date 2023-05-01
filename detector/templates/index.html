@@ -76,7 +76,24 @@
           <source src="{{ video_url }}" type="video/mp4">  
         </video>
 
-        <div class="video-controls hidden" id="video-controls">
+        <div class="video-controls hidden" id="video-controls" style="height:20%">
+          <style>
+            #anom-scores-graph{
+              position:absolute;
+              top: -70%;
+              bottom: 90%;
+              left: 10%;
+              right: 10%;
+              background-color: rgba(20, 100, 20, 0.5);
+              overflow:visible;
+              /* height:40%; */
+              padding:3px 0;
+              /* z-index:2; */
+            }
+          </style>
+          <div class="graph" id="anom-scores-graph">
+            <canvas id="myChart" style="width:100%;max-width:700px;height:100%;"></canvas>
+          </div>
 
           <div class="video-progress" id="video-progress"> 
             <progress id="progress-bar" value="0" min="0"></progress>
@@ -165,7 +182,9 @@
           
         </div>
       </div>
+      
     </div>
+    
     <div class="header" style="display:none; padding-bottom:100px;">
       <p class="h2" style="color:white;">Extract Clips!</p>
       <br>
@@ -259,6 +278,7 @@
     </defs>
   </svg>
   <script src="{% static 'index.js' %}" type="application/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
   <script>
     console.log('hey there... {{y_preds}}')
     function getMyThumb(start_time){
@@ -324,6 +344,68 @@
 
     },false);
 
+      var ctx = document.getElementById('myChart').getContext('2d');
+      var myChart = new Chart(ctx, {
+          data: {
+              labels: ".....",
+              datasets: [
+                {
+                  type:'line',
+                  label: "Anomaly Scores",
+                  // data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.025561271235346794, 0.04739326983690262, 0.13775211572647095, 0.028202025219798088, 0.0289352647960186, 0.032876625657081604, 0.029559150338172913, 0.040695179253816605, 0.041077326983213425, 0.04389362037181854, 0.03740108385682106, 0.04131842777132988, 0.030782179906964302, 0.029481209814548492, 0.03134077042341232, 0.041979677975177765, 0.04497998207807541, 0.04034574329853058, 0.04267435893416405, 0.03910122439265251, 0.04182608798146248, 0.04095136746764183, 0.04055456817150116, 0.03920494019985199],
+                  data:{{y_preds}}, //data_of_charts
+                  backgroundColor: [
+                      'rgba(47, 152, 208, 0.2)',
+                  ],
+                  borderColor: [
+                      'rgba(19, 247, 228,1)',
+                  ],
+                  borderWidth: 2,
+                  pointBackgroundColor: 'rgba(19, 247, 228,1)',
+                  pointBorderColor: 'rgba(19, 247, 228,1)',
+                  pointBorderWidth: 5,
+              },
+              {
+                type: 'line',
+                label: 'Threshold',
+                mode:'horizontal',
+                // data: [1,2,3,4].map(i=>0.4),
+                data: {{ y_preds}}.map(i=>0.4),
+                fill: false,
+                borderColor: 'red',
+                backgroundColor: 'transparent'
+              },
+            ]
+          },
+
+          options: {
+              legend:{
+                display:false
+              },
+              scales: {
+                xAxes: [{
+                  gridLines: {
+                     display: false
+                  }
+               }],
+               yAxes: [{
+                  display:false,
+                  gridLines: {
+                     display: false
+                  }
+               }]
+              },
+              tooltips: {
+                callbacks: {
+                   label: function(t, d) {
+                      var xLabel = d.datasets[t.datasetIndex].label;
+                      var yLabel = d.datasets[t.datasetIndex].data[t.index];
+                      return xLabel + ': $' + yLabel;
+                   }
+                }
+             }
+          }
+      });
   </script>
 </body>
 
