@@ -19,10 +19,12 @@ const midControlsExtract = document.getElementById('controls-extract');
 const progressBar = document.getElementById('progress-bar');
 const extractBarInitial = document.getElementById('extract-bar-initial')
 const extractBarFinal = document.getElementById('extract-bar-final')
+const anomScoresGraph = document.getElementById('anom-scores-graph');
 
 const seek = document.getElementById('seek');
 const seekInitial = document.getElementById('seek-initial');
 const seekFinal = document.getElementById('seek-final');
+
 
 const seekTooltip = document.getElementById('seek-tooltip');
 const seekTooltipInitial = document.getElementById('seek-tooltip-initial');
@@ -73,7 +75,7 @@ function updatePlayButton() {
 // formatTime takes a time length in seconds and returns the time in
 // minutes and seconds
 function formatTime(timeInSeconds) {
-    console.log(timeInSeconds)
+    // console.log(timeInSeconds)
     const result = new Date(timeInSeconds * 1000).toISOString().substring(11, 19);
     return {
         minutes: result.substring(3, 5),
@@ -87,12 +89,12 @@ function initializeVideo() {
     const videoDuration = Math.round(video.duration);
 
     seek.setAttribute('max', videoDuration);
-    seekInitial.setAttribute('max', videoDuration);
-    seekFinal.setAttribute('max', videoDuration);
+    // seekInitial.setAttribute('max', videoDuration);
+    // seekFinal.setAttribute('max', videoDuration);
 
     progressBar.setAttribute('max', videoDuration);
-    extractBarFinal.setAttribute('max', videoDuration);
-    extractBarInitial.setAttribute('max', videoDuration);
+    // extractBarFinal.setAttribute('max', videoDuration);
+    // extractBarInitial.setAttribute('max', videoDuration);
 
     const time = formatTime(videoDuration);
     duration.innerText = `${time.minutes}:${time.seconds}`;
@@ -164,13 +166,10 @@ function skipAhead(event) {
     progressBar.value = skipTo;
     seek.value = skipTo;
 }
-function skipAheadInitial(event) {
-    const skipTo = event.target.dataset.seek
-        ? event.target.dataset.seek
-        : event.target.value;
+function skipAheadInitial(skipTo) {
     video.currentTime = String(skipTo);
-    extractBarInitial.value = skipTo;
-    seekInitial.value = skipTo;
+    // extractBarInitial.value = skipTo;
+    // seekInitial.value = skipTo;
 }
 function skipAheadFinal(event) {
     const skipTo = event.target.dataset.seek
@@ -295,15 +294,63 @@ function hideSideTab() {
 function toggleSideTab() {
     sideTab.classList.toggle('hide');
     videoControls.classList.toggle('shrink');
+    anomScoresGraph.classList.toggle('shrink');
 }
 function toggleExtract() {
     midControls.classList.toggle('hide');
     midControlsExtract.classList.toggle('hide');
     videoProgressGroup.classList.toggle('hide');
     extractProgressGroup.classList.toggle('hide');
-    extractProgressFinal.classList.toggle('hide');
+    // extractProgressFinal.classList.toggle('hide');
 }
 
+//Extract Slider
+var circle1 = document.getElementById("circle1");
+var circle2 = document.getElementById("circle2");
+var sliderBar = document.querySelector(".slider-bar");
+var sliderInterval = document.querySelector(".slider-interval");
+
+var draggingCircle = null;
+
+circle1.onmousedown = function (event) {
+    draggingCircle = circle1;
+};
+
+circle2.onmousedown = function (event) {
+    draggingCircle = circle2;
+};
+
+document.onmouseup = function (event) {
+    draggingCircle = null;
+};
+
+document.onmousemove = function (event) {
+    if (draggingCircle) {
+        var sliderRect = sliderBar.getBoundingClientRect();
+        var x = event.clientX - sliderRect.left;
+        x = Math.max(0, x);
+        x = Math.min(x, sliderRect.width);
+        draggingCircle.style.left = x / sliderRect.width * 100 + "%";
+        updateValues();
+    }
+};
+
+function updateValues() {
+    var circle1Pos = parseFloat(circle1.style.left) || circle1.offsetLeft / sliderBar.offsetWidth * 100;
+    var circle2Pos = parseFloat(circle2.style.left) || circle2.offsetLeft / sliderBar.offsetWidth * 100;
+
+    var minValue = Math.min(circle1Pos, circle2Pos);
+    var maxValue = Math.max(circle1Pos, circle2Pos);
+    var range = maxValue - minValue;
+
+    // Update slider range
+    sliderInterval.style.left = minValue + "%";
+    sliderInterval.style.width = range + "%";
+
+    (minValue < 0) ? 0 : 1;
+
+    skipAheadInitial(Math.round((minValue / 100) * video.duration));
+}
 
 // Add eventlisteners here
 playButton.addEventListener('click', togglePlay);
@@ -322,12 +369,12 @@ videoControls.addEventListener('mouseenter', showControls);
 videoControls.addEventListener('mouseleave', hideControls);
 
 seek.addEventListener('mousemove', updateSeekTooltip);
-seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
-seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
+// seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
+// seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
 
 seek.addEventListener('input', skipAhead);
-seekInitial.addEventListener('input', skipAheadInitial);
-seekFinal.addEventListener('input', skipAheadFinal);
+// seekInitial.addEventListener('input', skipAheadInitial);
+// seekFinal.addEventListener('input', skipAheadFinal);
 
 // volume.addEventListener('input', updateVolume);
 // volumeButton.addEventListener('click', toggleMute);

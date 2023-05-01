@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #slider {
+        position: relative;
+        height: 50px;
+        margin: 50px;
+        background-color: #e22323;
+      }
+
+      .circle {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        cursor: pointer;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: -10px;
+        z-index: 2;
+      }
+
+      #circle1 {
+        left: 0%;
+      }
+
+      #circle2 {
+        left: 50%;
+      }
+
+      #slider-interval {
+        left: 0%;
+        width: 50%;
+        pointer-events: none;
+      }
+
+      .slider-bar {
+        position: absolute;
+        width: 100%;
+        height: 12px;
+        background-color: #333;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      
+      .slider-interval {
+        position: absolute;
+        width: 0%;
+        height: 10px;
+        background-color: green;
+        top: 20px;
+        z-index: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="slider">
+      <div class="slider-bar"></div>
+      <div class="slider-interval" id="slider-interval"></div>
+      <div class="circle" id="circle1"></div>
+      <div class="circle" id="circle2"></div>
+    </div>
+
+    <script>
+      var circle1 = document.getElementById("circle1");
+      var circle2 = document.getElementById("circle2");
+      var sliderBar = document.querySelector(".slider-bar");
+      var sliderInterval = document.querySelector(".slider-interval");
+
+      var draggingCircle = null;
+
+      circle1.onmousedown = function (event) {
+        draggingCircle = circle1;
+      };
+
+      circle2.onmousedown = function (event) {
+        draggingCircle = circle2;
+      };
+
+      document.onmouseup = function (event) {
+        draggingCircle = null;
+      };
+
+      document.onmousemove = function (event) {
+        if (draggingCircle) {
+          var sliderRect = sliderBar.getBoundingClientRect();
+          var x = event.clientX - sliderRect.left;
+          x = Math.max(0, x);
+          x = Math.min(x, sliderRect.width);
+          draggingCircle.style.left = x / sliderRect.width * 100 + "%";
+          updateValues();
+        }
+      };
+
+      console.log('circles: ',circle1.style.left,circle2.style.left)
+      function updateValues() {
+        var circle1Pos = parseFloat(circle1.style.left) || circle1.offsetLeft / sliderBar.offsetWidth * 100;
+        var circle2Pos = parseFloat(circle2.style.left) || circle2.offsetLeft / sliderBar.offsetWidth * 100;
+  
+        console.log('circles: ',circle1Pos,circle2Pos)
+        var minValue = Math.min(circle1Pos, circle2Pos);
+        var maxValue = Math.max(circle1Pos, circle2Pos);
+        var range = maxValue - minValue;
+
+        // Update slider range
+        sliderInterval.style.left = minValue + "%";
+        sliderInterval.style.width = range + "%";
+        
+        
+        console.log("Minimum value: " + minValue);
+        console.log("Maximum value: " + maxValue);
+        console.log("Range: " + range);
+      }
+    </script>
+  </body>
+</html>

@@ -14,9 +14,17 @@
   <script type="text/javascript">
    
     function sendDownloadRequest() {
-      const start= document.getElementById('seek-initial').value;
-      const final= document.getElementById('seek-final').value;
-      let data = { start: new Date(start * 1000).toISOString().substring(11, 19), duration: new Date((final-start) * 1000).toISOString().substring(11, 19) };
+      
+      const sliderInterval = document.querySelector(".slider-interval");
+      
+      var left = (sliderInterval.style.left<0) ? 0:sliderInterval.style.left;
+      
+      const start= Math.round((sliderInterval.style.left / 100) * video.duration);
+      const duration= Math.round((sliderInterval.style.width / 100) * video.duration);
+
+      console.log(`left: ${start}`);
+
+      let data = { start: new Date(start * 1000).toISOString().substring(11, 19), duration: new Date((duration) * 1000).toISOString().substring(11, 19) };
       console.log(data);
       var csrf_token = $('input[name="csrfmiddlewaretoken"]').val()
       fetch("{% url 'timestamp' %}", {
@@ -45,6 +53,7 @@
           console.log("Request complete! response:", res);
       });
     }
+    
 </script>
 
 </head>
@@ -59,7 +68,7 @@
         <input type="file" id="hiddenUploadButton" name="sentFile" onChange="document.getElementById('MyGreatFileUploadForm').submit();" style="display:none;" />
         <button type="button" class="upload" id="upload" onclick="document.getElementById('hiddenUploadButton').click();">upload</button><span class="h2"> your file here and get
           started!</span>
-        <button type="button" class="upload" id="upload" onclick="createExtractChapter('00:00','10:00');">Add Chap</button>
+        {% comment %} <button type="button" class="upload" id="upload" onclick="createExtractChapter('00:00','10:00');">Add Chap</button> {% endcomment %}
     </form>
       
     </div>
@@ -76,22 +85,24 @@
           <source src="{{ video_url }}" type="video/mp4">  
         </video>
 
-        <div class="video-controls hidden" id="video-controls" style="height:20%">
+        <div class="video-controls hidden" id="video-controls">
           <style>
-            #anom-scores-graph{
-              position:absolute;
-              top: -70%;
-              bottom: 90%;
-              left: 10%;
-              right: 10%;
-              background-color: rgba(20, 100, 20, 0.5);
-              overflow:visible;
-              /* height:40%; */
-              padding:3px 0;
-              /* z-index:2; */
+            .anom-scores-graph{
+              overflow: visible;
+              padding: 3px 0;
+              height: 100px;
+              margin-bottom: -32px;
+            }
+            .anom-scores-graph.shrink{
+              margin-bottom: -56px;
+	            transition: all 0.3 ease;
+            }
+            .anom-scores-graph.hide{
+              opacity: 0;
+	            transition: all 0.1 ease;
             }
           </style>
-          <div class="graph" id="anom-scores-graph">
+          <div class="graph anom-scores-graph hide" id="anom-scores-graph">
             <canvas id="myChart" style="width:100%;max-width:700px;height:100%;"></canvas>
           </div>
 
@@ -102,6 +113,13 @@
           </div>
 
           <div class="extract-progress hide " id="extract-progress-initial">
+            <div class="slider-bar"></div>
+            <div class="slider-interval" id="slider-interval"></div>
+            <div class="circle" id="circle1"></div>
+            <div class="circle" id="circle2"></div>
+          </div>
+
+          {% comment %} <div class="extract-progress hide " id="extract-progress-initial">
             <progress id="extract-bar-initial" value="10" min="0"></progress>
             <input class="seek" id="seek-initial" value="10" min="0" type="range" step="1">
             <div class="seek-tooltip" id="seek-tooltip-initial">00:00</div>
@@ -111,7 +129,7 @@
             <progress id="extract-bar-final" value="30" min="0"></progress>
             <input class="seek" id="seek-final" value="30" min="0" type="range" step="1">
             <div class="seek-tooltip" id="seek-tooltip-final">00:00</div>
-          </div>
+          </div> {% endcomment %}
           
 
           <div class="bottom-controls">
@@ -339,45 +357,57 @@
         intervals.forEach((timeSet) => {
           // {% comment %} console.log(`startime:${timeSet[0]/25} and endtime:${timeSet[1]/25}`) {% endcomment %}
           createExtractChapter((timeSet[0]+1)/25,timeSet[1]/25)
-      });
-      }
+          });
+          }
 
-    },false);
+      },false);
 
       var ctx = document.getElementById('myChart').getContext('2d');
       var myChart = new Chart(ctx, {
           data: {
-              labels: ".....",
+              labels: {{ y_preds}}.map(i=>'.'),
               datasets: [
                 {
                   type:'line',
-                  label: "Anomaly Scores",
-                  // data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.025561271235346794, 0.04739326983690262, 0.13775211572647095, 0.028202025219798088, 0.0289352647960186, 0.032876625657081604, 0.029559150338172913, 0.040695179253816605, 0.041077326983213425, 0.04389362037181854, 0.03740108385682106, 0.04131842777132988, 0.030782179906964302, 0.029481209814548492, 0.03134077042341232, 0.041979677975177765, 0.04497998207807541, 0.04034574329853058, 0.04267435893416405, 0.03910122439265251, 0.04182608798146248, 0.04095136746764183, 0.04055456817150116, 0.03920494019985199],
+                  label: "Anomaly Scores",                 
                   data:{{y_preds}}, //data_of_charts
+                  
+                  fill: true,
                   backgroundColor: [
-                      'rgba(47, 152, 208, 0.2)',
+                      'rgba(10, 255, 10, 0.2)',
                   ],
                   borderColor: [
                       'rgba(19, 247, 228,1)',
                   ],
                   borderWidth: 2,
-                  pointBackgroundColor: 'rgba(19, 247, 228,1)',
-                  pointBorderColor: 'rgba(19, 247, 228,1)',
-                  pointBorderWidth: 5,
+                  pointBackgroundColor: 'rgba(19, 247, 228,0)',
+                  pointBorderColor: 'rgba(19, 247, 228,0)',
+                  pointBorderWidth: 1,
               },
               {
                 type: 'line',
                 label: 'Threshold',
                 // data: [1,2,3,4].map(i=>0.4),
-                data: {{ y_preds}}.map(i=>0.4),
-                fill: false,
-                borderColor: 'red',
-                backgroundColor: 'transparent'
+                data: {{ y_preds}}.map(i=>{
+                  if(i<0.4) return null; 
+                  else return 0.4;
+                }),
+                fill: '-1',
+                borderColor: 'transparent',
+                backgroundColor: [
+                'rgba(255, 10, 10, 1)',
+                ],
+                pointBackgroundColor: 'rgba(19, 247, 228,0)',
+                pointBorderColor: 'rgba(19, 247, 228,0)',
+                pointBorderWidth: 1,
               },
             ]
           },
 
           options: {
+              animation:{
+                duration: 1000
+              },
               legend:{
                 display:false
               },
@@ -391,7 +421,10 @@
                   display:false,
                   gridLines: {
                      display: false
-                  }
+                  },
+                  
+                  min: 0.0,
+                  max:1.0
                }]
               },
               tooltips: {
@@ -405,6 +438,14 @@
              }
           }
       });
+      function displayGraph(){
+        document.getElementById('anom-scores-graph').classList.toggle('hide');
+        myChart.reset({duration: 1000});
+        myChart.update({duration: 1000});
+      }
+      document.getElementById('video-controls').addEventListener('mouseenter', displayGraph);
+      document.getElementById('video-controls').addEventListener('mouseleave', displayGraph);
+      
   </script>
 </body>
 
