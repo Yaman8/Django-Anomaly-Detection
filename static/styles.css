@@ -266,6 +266,8 @@ progress::-moz-progress-bar {
 	display: block;
 }
 
+
+
 .seek-tooltip {
 	display: none;
 	position: absolute;
@@ -277,6 +279,10 @@ progress::-moz-progress-bar {
 	font-weight: bold;
 	color: #fff;
 	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.seek-tooltip.show {
+	display: block;
 }
 
 .bottom-controls {

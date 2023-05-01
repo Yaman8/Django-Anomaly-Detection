@@ -30,7 +30,6 @@ const seekFinal = document.getElementById('circle2');
 
 const seekTooltip = document.getElementById('seek-tooltip');
 const seekTooltipInitial = document.getElementById('seek-tooltip-initial');
-const seekTooltipFinal = document.getElementById('seek-tooltip-final');
 
 // const volumeButton = document.getElementById('volume-button');
 // const volumeIcons = document.querySelectorAll('.volume-button use');
@@ -136,25 +135,37 @@ function updateSeekTooltip(event) {
 }
 
 function updateSeekTooltipInitial(event) {
-    const skipTo = Math.round(
-        (event.offsetX / event.target.clientWidth) *
-        video.duration
-    );
+
+    const sliderInterval = document.querySelector(".slider-interval");
+
+    var left = (parseFloat(sliderInterval.style.left) < 0) ? 0 : parseFloat(sliderInterval.style.left);
+
+    const start = Math.round((left / 100) * document.getElementById('video').duration);
+    const duration = Math.round((parseFloat(sliderInterval.style.width) / 100) * document.getElementById('video').duration);
+
+    const skipTo = start;
+    if (skipTo == NaN) skipTo = 0;
+
+    console.log(skipTo);
     const t = formatTime(skipTo);
-    seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
+    seekTooltipInitial.textContent = `${t.minutes}:${t.seconds}`;
     const rect = document.querySelector(".slider-bar").getBoundingClientRect();
-    seekTooltip.style.left = `${event.pageX - rect.left}px`;
+    seekTooltipInitial.style.left = `${event.pageX - rect.left}px`;
 }
 
 function updateSeekTooltipFinal(event) {
-    const skipTo = Math.round(
-        (event.offsetX / event.target.clientWidth) *
-        parseInt(event.target.getAttribute('max'), 10)
-    );
+    const sliderInterval = document.querySelector(".slider-interval");
+
+    var left = (parseFloat(sliderInterval.style.left) < 0) ? 0 : parseFloat(sliderInterval.style.left);
+
+    const start = Math.round((left / 100) * document.getElementById('video').duration);
+    const duration = Math.round((parseFloat(sliderInterval.style.width) / 100) * document.getElementById('video').duration);
+    if (start == NaN) start = 0;
+    const skipTo = start + duration;
     const t = formatTime(skipTo);
-    seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
+    seekTooltipInitial.textContent = `${t.minutes}:${t.seconds}`;
     const rect = document.querySelector(".slider-bar").getBoundingClientRect();
-    seekTooltip.style.left = `${event.pageX - rect.left}px`;
+    seekTooltipInitial.style.left = `${event.pageX - rect.left}px`;
 }
 // skipAhead jumps to a different point in the video when the progress bar
 // is clicked
@@ -303,7 +314,10 @@ function toggleExtract() {
     extractProgressGroup.classList.toggle('hide');
     // extractProgressFinal.classList.toggle('hide');
 }
-
+function toggleTooltip() {
+    console.log("I'm here");
+    seekTooltipInitial.classList.toggle('show');
+}
 //Extract Slider
 var circle1 = document.getElementById("circle1");
 var circle2 = document.getElementById("circle2");
@@ -373,6 +387,7 @@ seekInitial.addEventListener('mousemove', updateSeekTooltipInitial);
 seekFinal.addEventListener('mousemove', updateSeekTooltipFinal);
 
 seek.addEventListener('input', skipAhead);
+
 // seekInitial.addEventListener('input', skipAheadInitial);
 // seekFinal.addEventListener('input', skipAheadFinal);
 
