@@ -83,7 +83,7 @@
             <use href="#pause"></use>
           </svg>
         </div>
-        <video controls class="video" id="video" preload="metadata" poster="{% static 'poster.jpg' %}">
+        <video autoplay="autoplay" controls class="video" id="video" preload="metadata" poster="{% static 'poster.jpg' %}">
           <source src="{{ video_url }}" type="video/mp4">  
         </video>
 

@@ -29,7 +29,11 @@ def save_video(request):
         # susp_moments = list(susp_moments)
         # print(type(susp_moments))
         global full_url
-        full_url = 'http://127.0.0.1:8000/media/'+f.name[:-4]+'_result.mp4'
+
+        save_path = 'media\\' + \
+            f.name[:-4] + '_result'
+        vid_save_path = save_path+'_video'
+        full_url = 'http://127.0.0.1:8000/'+vid_save_path+'/video.mp4'
         # print('y_preds',y_preds)
     return render(request, 'index.html', context={'video_url': full_url, 'susp_moments': (json.dumps(susp_moments)), 'y_preds': (json.dumps(y_preds))})
     # filename=f.save()
