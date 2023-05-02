@@ -373,7 +373,7 @@ def generate_vid(vid):
     img.sort()
 
     # number of frames to process
-    img = img[:250]
+    # img = img[:250]
 
     count = 0
 
@@ -420,7 +420,7 @@ def generate_vid(vid):
         cv2.imwrite(path, cv_img)
 
     # os.system('ffmpeg -i "%s" "%s"'%(save_path+'/%05d.jpg', save_path+'.mp4'))
-    os.system('ffmpeg -y -i "%s" -c:v libx264 "%s"' %
+    os.system('ffmpeg -y -i "%s" -c:v libx264 -g 30 -r 30 "%s"' %
               (save_path+'/%05d.jpg', save_path+'.mp4'))
     susp_moments = get_suspc_moments(y_pred, 0.4)
     # susp_thumbs = [img[interval[0]] for interval in susp_moments ]
